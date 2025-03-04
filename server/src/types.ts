@@ -1,5 +1,7 @@
+import { Request, Response, NextFunction } from "express";
+
 export interface fxnCall{
-    res:any;
-    req:any;
-    next:any;
+    res:Response;
+    req:Request;
+    next:NextFunction;
 }

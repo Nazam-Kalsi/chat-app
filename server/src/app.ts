@@ -1,16 +1,15 @@
 import express  from "express";
 import { createServer,Server as httpServer } from "http";
 import { Server as socketServer, Socket } from "socket.io";
-import {socketEvents} from "./socket/s"
-
+import cors from 'cors';
 const app = express();
 
 export const server : httpServer=createServer(app);
 
 const corsOptions = {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-    credentials: true,
+    origin: "*",
+    // methods: ["GET", "POST"],
+    // credentials: true,
   };
 
 export const io:socketServer = new socketServer(server,{
@@ -25,5 +24,9 @@ app.use(express.urlencoded({
   extended: true,
   limit:"20kb"
 }));
+app.use(cors({
+  origin:'*'
+}));
 
-
+import userRouter from './routes/user.route.ts'
+app.use('/api/user',userRouter);

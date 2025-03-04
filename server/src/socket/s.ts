@@ -13,8 +13,8 @@ interface MessageResponse {
 
 export const socketEvents=(io:Server)=>{    
     
-    io.on("connection", (socket:Socket) => {
-        console.log("user Connected with id : ",socket.id);
+    io.on("connection", (socket:Socket) => {        
+        
         socket.emit("welcome", `Welcome : ${socket.id}`); 
 
         socket.on("send-message",(res:MessageResponse)=>{

@@ -1,9 +1,9 @@
-import { ApiErr } from "../utils/apiErr";
-import { ApiRes } from "../utils/apiRes";
-import { handler } from "../utils/handler";
-import { User } from "../models/user.model";
-import { Chat } from "../models/chat.model";
-import { fxnCall } from "../types";
+import { ApiErr } from "../utils/apiErr.ts";
+import { ApiRes } from "../utils/apiRes.ts";
+import { handler } from "../utils/handler.ts";
+import { User } from "../models/user.model.ts";
+import { Chat } from "../models/chat.model.ts";
+import { fxnCall } from "../types.ts";
 import mongoose from "mongoose";
 
 export const createOrGetChat = handler(async ({ req, res, next }: fxnCall) => {

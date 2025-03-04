@@ -1,8 +1,8 @@
 import jwt,{JwtPayload} from "jsonwebtoken";
-import { fxnCall } from "../types";
-import { ApiErr } from "../utils/apiErr";
-import { handler } from "../utils/handler";
-import { User } from "../models/user.model";
+import { fxnCall } from "../types.ts";
+import { ApiErr } from "../utils/apiErr.ts";
+import { handler } from "../utils/handler.ts";
+import { User } from "../models/user.model.ts";
 
 interface JwtPayloadWithId extends JwtPayload{
     _id:string;

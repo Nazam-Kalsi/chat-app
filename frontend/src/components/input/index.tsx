@@ -1,10 +1,11 @@
-import React, {  useRef } from "react";
+import {  useRef, useState } from "react";
 import { socket } from "../../socket";
 
 function MessageInput() {
   const inputRef = useRef<HTMLInputElement>(null);
   const msgRef = useRef<HTMLDivElement>(null);
-  const [message, setMessage] = React.useState("");
+  const [message, setMessage] = useState("");
+  const [recieveMsg, setRecieveMsg] = useState<string[] |null>(null);
 
   const add = (msg: any) => {
     console.log(msg);
@@ -13,13 +14,7 @@ function MessageInput() {
     console.log("Message sent");
   };
 
-  socket.on("message", (msg) => {
-    console.log(msg);
-  });
 
-  socket.on("user-joined",(res)=>{
-    console.log(res);
-  })
 
   const send = async () => {
     if (inputRef.current) {
@@ -41,6 +36,12 @@ function MessageInput() {
   return (
     <>
       <div ref={msgRef}></div>
+      <div>{
+        recieveMsg?.map((msg)=>{
+          return(
+            <p>{msg}</p>
+          )
+        })}</div>
       message :{" "}
       <input
         ref={inputRef}

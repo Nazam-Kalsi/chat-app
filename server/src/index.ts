@@ -1,7 +1,7 @@
-import { server, io } from "./app";
-import dbConnect from "./db/db";
+import { server, io } from "./app.ts";
+import dbConnect from "./db/db.ts";
 import dotenv from "dotenv";
-import {socketEvents} from "./socket/s"
+import {socketEvents} from "./socket/s.ts"
 dotenv.config();
 
 const port = process.env.PORT || 3000;

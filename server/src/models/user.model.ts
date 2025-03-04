@@ -46,14 +46,20 @@ userSchema.methods.generateRefreshToken=async function(){
     if (!process.env.REFRESH_TOKEN_SECRET) {
         throw new Error("Missing REFRESH_TOKEN_SECRET in environment variables");
       }
-    return jwt.sign({
+      return jwt.sign({
         _id:this._id,
         userName:this.userName,   
-    },
-    process.env.REFRESH_TOKEN_SECRET,{
-        expiresIn:process.env.REFRESH_TOKEN_EXPIRY || "1d"
-    }
-)
+      },
+      process.env.REFRESH_TOKEN_SECRET
+    )
+    // return jwt.sign({
+    //     _id:this._id,
+    //     userName:this.userName,   
+    // },
+//     process.env.REFRESH_TOKEN_SECRET,{
+//         expiresIn:process.env.REFRESH_TOKEN_EXPIRY || "1d"
+//     }
+// )
 }
 
 userSchema.methods.generateAccessToken=async function(){
@@ -63,9 +69,8 @@ userSchema.methods.generateAccessToken=async function(){
     return jwt.sign({
         _id:this._id,
         userName:this.userName,
-    },process.env.ACCESS_TOKEN_SECRET,{
-        expiresIn:process.env.ACCESS_TOKEN_EXPIRY || "10d"
-    })
+    },process.env.ACCESS_TOKEN_SECRET
+)
 }
 
 export const User = mongoose.model("User",userSchema);
