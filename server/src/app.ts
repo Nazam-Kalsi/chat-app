@@ -2,14 +2,15 @@ import express  from "express";
 import { createServer,Server as httpServer } from "http";
 import { Server as socketServer, Socket } from "socket.io";
 import cors from 'cors';
+import cookieParser from "cookie-parser";
 const app = express();
 
 export const server : httpServer=createServer(app);
 
 const corsOptions = {
-    origin: "*",
+    origin: "http://localhost:5173",
     // methods: ["GET", "POST"],
-    // credentials: true,
+    credentials: true,
   };
 
 export const io:socketServer = new socketServer(server,{
@@ -24,9 +25,11 @@ app.use(express.urlencoded({
   extended: true,
   limit:"20kb"
 }));
-app.use(cors({
-  origin:'*'
-}));
+app.use(cors(corsOptions));
+
+app.use(express.json());
+
+app.use(cookieParser());
 
 import userRouter from './routes/user.route.ts'
 app.use('/api/user',userRouter);

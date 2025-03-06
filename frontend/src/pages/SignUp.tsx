@@ -1,7 +1,6 @@
 import { Link } from "react-router";
 
 export default function Signup() {
-
   interface FormElements extends HTMLFormControlsCollection {
     name: HTMLInputElement;
     email: HTMLInputElement;
@@ -20,15 +19,23 @@ export default function Signup() {
       email: e.currentTarget.elements.email.value,
       password: e.currentTarget.elements.password.value,
     };
-    const res = await fetch(`http://localhost:3000/api/user/sign-up`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(dataToSend),
-    });
-    const data = await res.json();
-    console.log(data);
+    try {
+      const res = await fetch(`http://localhost:3000/api/user/sign-up`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSend),
+      });
+      console.log(res)
+      if (!res.ok) {
+        throw new Error("Something went wrong");
+      }
+      const data = await res.json();
+      // console.log(data);
+    } catch (error: any) {      
+        console.log("Unexpected Error:", error.message);      
+    }
   };
   return (
     <div className="wrapper signUp">

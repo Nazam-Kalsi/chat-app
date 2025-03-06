@@ -5,3 +5,9 @@ export interface fxnCall{
     req:Request;
     next:NextFunction;
 }
+
+declare module 'Express' {
+    interface Request {
+        user?:any
+    }
+}

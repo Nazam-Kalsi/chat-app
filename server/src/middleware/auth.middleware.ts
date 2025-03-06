@@ -9,7 +9,7 @@ interface JwtPayloadWithId extends JwtPayload{
 }
 
 export const verifyToken=handler(async({req,res,next}:fxnCall)=>{
-    const token=req.cookie?.accessToken
+    const token=req.cookies?.accessToken
     if(!token) throw new ApiErr(401,'Unauthorized');
     if(process.env.ACCESS_TOKEN_SECRET){
         const decodedToken=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET) as JwtPayloadWithId;

@@ -6,7 +6,6 @@ import { fxnCall } from "../types.ts";
 import { Request, Response, NextFunction } from "express";
 
 
-
 export const generateToken=async(id:any)=>{
     try{
         const user=await User.findById(id);
@@ -23,13 +22,8 @@ export const generateToken=async(id:any)=>{
 
 
 }
-// export const userRegistration = handler(async (req: Request, res: Response, next: NextFunction) => {
-//   console.log(req.body);
-//   const user = { id: 1, email: req.body.email };
-//   return res.status(201).json(new ApiRes(201, "User registered successfully", user));
-// });
 
-export const userRegistration = handler(async ( {req, res, next}:fxnCall ) => {
+export const userRegistration = handler(async ( {req, res, next}:fxnCall ) => { 
   const { userName, email, password } = req.body;
   console.log(userName, email, password);
 
@@ -50,6 +44,7 @@ export const userRegistration = handler(async ( {req, res, next}:fxnCall ) => {
   });
 
   if (existingUser) {
+    console.log(existingUser);
     throw new ApiErr(400, "User already exist.");
   }
 
@@ -66,15 +61,13 @@ export const userRegistration = handler(async ( {req, res, next}:fxnCall ) => {
     throw new ApiErr(400, "User not created");
   }
 
-  return res
-    .status(200)
-    .json(new ApiRes(200, "User created Successfully", user));
+  return res.status(200).json(ApiRes(200,'User created Successfully',user))
 });
 
 export const userLogin = handler(async ( {req, res, next} : fxnCall ) => {
     const {userName,email,password}=req.body;
         if(!userName && !email){
-            throw new ApiErr(400,"Invalid credentials");
+            throw new ApiErr(400,"Invalid credentials not provided");
         }
         if(!password){
             throw new ApiErr(400,"password is required");
@@ -86,7 +79,7 @@ export const userLogin = handler(async ( {req, res, next} : fxnCall ) => {
             ]
         })
         if(!user){
-            throw new ApiErr(400,"User not found.")
+            return new ApiErr(400,"User not found.")
         }
 
         const verifyPassword=await user.checkPassword(password);
@@ -99,44 +92,46 @@ export const userLogin = handler(async ( {req, res, next} : fxnCall ) => {
         user=await User.findById(user._id).select("-password -refreshToken") as any
 
         const options={
-            httpOnly:true,
-            Secure:true
+            // httpOnly:true,
+            // Secure:true
         }
 
         return res
-        .cookie("accessToken",accessToken,options)
-        .cookie("refreshToken",refreshToken,options)
         .status(200)
-        // .json(new ApiRes(200,"user log-in successfully",user));
+        .cookie("accessToken",accessToken)
+        .cookie("refreshToken",refreshToken)
+        .json(ApiRes(200,"user log-in successfully",user ));
 });
 
-// export const userLogout=handler(async({req,res,next}:fxnCall)=>{
-//     await User.findByIdAndUpdate(
-//         req.user._id,{
-//             $set:{
-//                 refreshToken:undefined
-//             }
-//         },
-//         {new:true}
-//     );
+export const userLogout=handler(async({req,res,next}:fxnCall)=>{
+    await User.findByIdAndUpdate(
+        req.user._id,{
+            $set:{
+                refreshToken:undefined
+            }
+        },
+        {new:true}
+    );
     
-//     const options:{
-//         httpOnly:boolean,
-//         secure:boolean
-//     }={
-//         httpOnly:true,
-//         secure:true,
-//     }
-//     return res
-//     .status(200)
-//     .clearCookie("refreshToken",options)
-//     .clearCookie("accessToken",options)
-//     .json(200,"user log-out successfully")
-// });
+    const options:{
+        httpOnly:boolean,
+        secure:boolean
+    }={
+        httpOnly:true,
+        secure:true,
+    }
+    return res
+    .status(200)
+    .clearCookie("refreshToken",options)
+    .clearCookie("accessToken",options)
+    .json(ApiRes(200,"user log-out successfully"));
+});
 
-// export const getFriends=handler(async({req,res,next}:fxnCall)=>{
-//   const user=req.user;
-//   const friends=user.friends;
-//   return res.json(new ApiRes(200,"friends list",friends));
-// })
+export const getFriends=handler(async({req,res,next}:fxnCall)=>{
+  const user=req.user;
+  const friends=user.friends;
+  return res
+  .status(200)  
+  .json(ApiRes(200,"friends list",friends));
+})
 
