@@ -33,3 +33,9 @@ app.use(cookieParser());
 
 import userRouter from './routes/user.route.ts'
 app.use('/api/user',userRouter);
+
+import messageRouter from './routes/message.route.ts'
+app.use('/api/message',messageRouter);
+
+import chatRouter from './routes/chat.router.ts'
+app.use('/api/chat',chatRouter);

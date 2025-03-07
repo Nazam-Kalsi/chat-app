@@ -12,9 +12,9 @@ const CustomRoutes = ()=> {
     <Routes>
       <Route path='/' element={<App/>}>
       <Route index element={<Chat/>}/>
-      </Route>
       <Route path='/sign-in' element={<SignIn/>}/>
       <Route path='/sign-up' element={<SignUp/>}/>
+      </Route>
     </Routes>
   )
 }

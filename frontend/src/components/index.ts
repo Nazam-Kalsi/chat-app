@@ -1,5 +1,5 @@
-import MessageInput from "./input"
-import Box from "./box"
+import MessageInput from "./customComponents/MessageInput"
+import Box from "./customComponents/box"
 
 export {
     MessageInput,

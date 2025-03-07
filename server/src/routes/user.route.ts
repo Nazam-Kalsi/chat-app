@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userLogin, userRegistration, userLogout } from "../controller/user.controller.ts";
+import { userLogin, userRegistration, userLogout, getFriends } from "../controller/user.controller.ts";
 import { verifyToken } from "../middleware/auth.middleware.ts";
 const router = Router();
 
@@ -8,5 +8,6 @@ router.route('/sign-in').post(userLogin);
 
 //secure routes
 router.route('/sign-out').get(verifyToken,userLogout);
+router.route('/get-friends').get(verifyToken,getFriends);
 
 export default router;

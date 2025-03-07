@@ -6,6 +6,7 @@ interface IUser extends Document {
   userName: string;
   email: string;
   password: string;
+  socketId: string;
   refreshToken: string;
   checkPassword(password: string): Promise<boolean>;
   generateRefreshToken(): Promise<string>;
@@ -21,6 +22,7 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     email: {
       type: String,
+      unique:true,
       required: [true, "email is required !"],
       trim: true,
     },

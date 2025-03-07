@@ -32,15 +32,19 @@ export default function Signup() {
         throw new Error("Something went wrong");
       }
       const data = await res.json();
-      // console.log(data);
-    } catch (error: any) {      
-        console.log("Unexpected Error:", error.message);      
+      console.log(data);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.log("Unexpected Error:", error.message);
+      } else {
+        console.log("Unexpected Error:", error);
+      }
     }
   };
   return (
     <div className="wrapper signUp">
       <div className="form">
-        <div className="heading">CREATE AN ACCOUNT</div>
+        <div className="heading bg-red-900">CREATE AN ACCOUNT</div>
         <form onSubmit={submit}>
           <div>
             <label htmlFor="name">Name</label>

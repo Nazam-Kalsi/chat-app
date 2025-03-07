@@ -6,7 +6,7 @@ import { Chat } from "../models/chat.model.ts";
 import { fxnCall } from "../types.ts";
 import mongoose from "mongoose";
 
-export const createOrGetChat = handler(async ({ req, res, next }: fxnCall) => {
+export const createChat = handler(async ({ req, res, next }: fxnCall) => {
   const { reqID } = req.params;
 
   const reciever = await User.findById(reqID);
@@ -50,17 +50,17 @@ export const createOrGetChat = handler(async ({ req, res, next }: fxnCall) => {
   if (ExistingChat) {
     return res
       .status(200)
-      .json(new ApiRes(200, "chat fetched successfully", ExistingChat));
+      .json(ApiRes(200, "chat fetched successfully", ExistingChat));
   }
 
   const newChat = await Chat.create({
     name: "one-on-one-chat",
     participants: [req.user._id, new mongoose.Types.ObjectId(reqID)],
-    admin: req.user_id,
+    admin: req.user.user_id,
   });
 
   const chat = await Chat.findOne({ _id: newChat._id }).populate(
-    "users",
+    "participants",
     "-password"
   );
 
@@ -68,10 +68,10 @@ export const createOrGetChat = handler(async ({ req, res, next }: fxnCall) => {
 
   return res
     .status(200)
-    .json(new ApiRes(200, "Chat created successfully", chat));
+    .json(ApiRes(200, "Chat created successfully", chat));
 });
 
-export const getUserChats = handler(async ({ req, res, next }: fxnCall) => {
+export const getChats = handler(async ({ req, res, next }: fxnCall) => {
   const id = req.user._id;
   const chats = await Chat.find({
     participants: { $eleMatch: { $eq: id } },
@@ -83,7 +83,7 @@ export const getUserChats = handler(async ({ req, res, next }: fxnCall) => {
 
   return res
     .status(200)
-    .json(new ApiRes(200, "chats fetched successfully", chats || []));
+    .json(ApiRes(200, "chats fetched successfully", chats || []));
 });
 
 export const createOrGetGroupChat = handler(async ({ req, res, next }: fxnCall) => {
@@ -102,7 +102,7 @@ export const createOrGetGroupChat = handler(async ({ req, res, next }: fxnCall) 
     if (existingGroup) {
       return res
         .status(200)
-        .json(new ApiRes(200, "group found", existingGroup));
+        .json(ApiRes(200, "group found", existingGroup));
     }
 
     let group = await Chat.create({
@@ -141,7 +141,7 @@ export const createOrGetGroupChat = handler(async ({ req, res, next }: fxnCall) 
 
     return res
       .status(200)
-      .json(new ApiRes(200, "group created successfully", group[0]));
+      .json( ApiRes(200, "group created successfully", group[0]));
   }
 );
 
@@ -205,7 +205,7 @@ export const changeGroupName = handler(async ({ res, req, next }: fxnCall) => {
 
   return res
     .status(200)
-    .json(new ApiRes(200, "group name changed successfully", group[0]));
+    .json(ApiRes(200, "group name changed successfully", group[0]));
 });
 
 export const addToGroupChat = handler(async ({ res, req, next }: fxnCall) => {
@@ -235,7 +235,7 @@ export const addToGroupChat = handler(async ({ res, req, next }: fxnCall) => {
 
   return res
     .status(200)
-    .json(new ApiRes(200, "menber added successfully", group));
+    .json(ApiRes(200, "menber added successfully", group));
 });
 
 export const removeFromGroup = handler(async ({ req, res, next }: fxnCall) => {
@@ -265,5 +265,5 @@ export const removeFromGroup = handler(async ({ req, res, next }: fxnCall) => {
 
   return res
     .status(200)
-    .json(new ApiRes(200, "menber remove successfully", group));
+    .json(ApiRes(200, "menber remove successfully", group));
 });
