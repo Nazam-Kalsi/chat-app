@@ -18,18 +18,18 @@ export const createChat = handler(async ({ req, res, next }: fxnCall) => {
     {
       $match: {
         isGroup: false,
+        $and: [
+          {
+            participants: { $elemMatch: { $eq: req.user._id } },
+          },
+          {
+            participants: { $elemMatch: { $eq: reqID } },
+          },
+        ],
       },
-      $and: [
-        {
-          participants: { $elemMatch: { $eq: req.user._id } },
-        },
-        {
-          participants: { $eleMatch: { $eq: reqID } },
-        },
-      ],
     },
     {
-      $lookUp: {
+      $lookup: {
         from: "users",
         localField: "participants",
         foreignField: "_id",
@@ -112,14 +112,14 @@ export const createOrGetGroupChat = handler(async ({ req, res, next }: fxnCall) 
       admin: req.user._id,
     });
 
-    group = await Chat.aggregate([
+    const groupAggregationResult = await Chat.aggregate([
       {
         $match: {
           _id: group._id,
         },
       },
       {
-        lookup: {
+        $lookup: {
           from: "users",
           localField: "participants",
           foreignField: "_id",
@@ -137,11 +137,12 @@ export const createOrGetGroupChat = handler(async ({ req, res, next }: fxnCall) 
       },
     ]);
 
+    group = groupAggregationResult[0];
     if (!group) throw new ApiErr(400, "error while creating group");
 
     return res
       .status(200)
-      .json( ApiRes(200, "group created successfully", group[0]));
+      .json( ApiRes(200, "group created successfully", group));
   }
 );
 
@@ -158,7 +159,7 @@ export const changeGroupName = handler(async ({ res, req, next }: fxnCall) => {
     },
     { new: true }
   );
-
+if(!updatedGroup) throw new ApiErr(500, "error while changing group name");
   const group = await Chat.aggregate([
     {
       $match: {

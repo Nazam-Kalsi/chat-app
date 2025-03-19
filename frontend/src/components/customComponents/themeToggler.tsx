@@ -9,7 +9,6 @@ function ThemeToggler() {
 
     const toggleTheme = () => {
         const t = document.documentElement.classList.toggle('dark');
-        console.log(t);
         setDarkTheme(t);
     }
 

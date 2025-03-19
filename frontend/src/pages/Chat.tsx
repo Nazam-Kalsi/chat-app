@@ -4,9 +4,9 @@ import { Box } from '../components'
 
 function Chat() {
     return (
-        <>
+        <div className='w-full h-screen bg-gray-800'>
             <Box />
-        </>
+        </div>
     )
 }
 
