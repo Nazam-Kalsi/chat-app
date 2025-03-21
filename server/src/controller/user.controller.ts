@@ -130,7 +130,23 @@ export const userLogout = handler(async ({ req, res, next }: fxnCall) => {
 });
 
 export const getUser = handler(async({req,res,next}:fxnCall)=>{
-  
+  const {search} =req.query;
+  if(!search){
+    throw new ApiErr(400,"search query is required.")
+  }
+
+  const user = User.find({
+    userName:{
+      $regex:search,
+      $options:"i"
+    }
+  })
+
+  if(!user){
+    throw new ApiErr(404,"user not found.")
+  }
+  return res.status(200)
+  .json(ApiRes(200,"User Found",user));
 })
 
 export const getFriends = handler(async ({ req, res, next }: fxnCall) => {

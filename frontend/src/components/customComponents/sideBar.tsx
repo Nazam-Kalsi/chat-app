@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useDebounceValue } from 'usehooks-ts'
+import { set, useForm } from "react-hook-form";
 
 
 type ChatsProps = {
@@ -24,6 +26,22 @@ function Chats({ name, time, onClick }: ChatsProps) {
 
 function SideBar({setMessages}:SideBarProps) {
     const [chat, setChats] = useState<any[]>([]);
+    const [searchedUsers,setSearchedUsers] = useState();
+
+    const { register, watch} = useForm();
+    const [debouncedValue, setValue] = useDebounceValue('', 800);
+    const watchedValueOfSearch = watch('search');
+    setValue(watchedValueOfSearch);
+    useEffect(()=>{
+        ;(async()=>{try {
+            const res = await axios.get(`http://localhost:5000/api/user/getUser?search=${debouncedValue}`);
+            console.log(res);
+            setSearchedUsers(res.data.data);
+        } catch (error) {
+            
+        }})();
+        console.log(debouncedValue);
+    },[debouncedValue]);
 
     const handleChatClick = async(chat:any) => {
         console.log(chat);
@@ -53,9 +71,14 @@ function SideBar({setMessages}:SideBarProps) {
     // }, []);
 
     return (
-        <div className="w-4/12">
-            <div>
-                
+        <div className="w-4/12 border-r">
+            <div className="p-2">
+        <input type="text"
+        id="search"
+        placeholder="Search..."
+        className="border p-2 w-full rounded-md"
+        {...register('search')}
+        />
             </div>
             {chat.length ? (
                 chat.map((chat: any, index: number) => {

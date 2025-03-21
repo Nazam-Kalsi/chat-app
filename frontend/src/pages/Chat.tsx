@@ -35,7 +35,7 @@ function Chat() {
     return (
         <div className="flex px-2">
             <SideBar setMessages={setCurrentMessages}/>
-            <div className="flex flex-col gap-2 w-full border rounded-md h-[35rem]">
+            <div className="flex flex-col gap-2 w-full p-2 rounded-md h-[35rem]">
                 <div className="h-full">
                     {currentMessages.map((message) => {
                         return <MessageContainer message={message} />;
