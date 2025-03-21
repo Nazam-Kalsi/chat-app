@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { socket } from './socket';
 import { Outlet } from 'react-router';
 import ThemeToggler from './components/customComponents/themeToggler';
+import { UserContextProvider } from './context/session';
 function App() {
   const [data,setData]=useState("Not connected");
  
@@ -13,8 +14,10 @@ function App() {
   return (
     <>
      <ThemeToggler/>
-     <h1 className='bg-green-600'>{data}</h1>
+     <h1 className=''>{data}</h1>
+     <UserContextProvider>
      <Outlet/>
+     </UserContextProvider>
     </>
   )
 }

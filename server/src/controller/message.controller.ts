@@ -58,3 +58,33 @@ export const deleteMessageInChat = handler(async ({ req, res, next }: fxnCall) =
     res.status(200)
     .json(ApiRes(200,"Message deleted successfully."));
 })
+
+export const getMessages = handler(async({req,res,next}:fxnCall)=>{
+    const {page,limit} = req.query;
+    const chatId = req.body;
+    const messages = await Message.aggregate([
+        {
+            $match:{
+                chat:new mongoose.Types.ObjectId(chatId)
+            }
+        },
+        {
+            $sort:{
+                createdAt:-1
+            }
+        }
+        ,{
+            $group:{
+                _id:'$chat',
+            }
+        }
+    ]);
+    if(!messages)throw new ApiErr(400,"NO message found.");
+
+
+    return res
+    .status(200)
+    .json(ApiRes(200,"messagesFetched successfully",messages));
+
+
+})

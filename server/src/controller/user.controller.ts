@@ -89,18 +89,19 @@ export const userLogin = handler(async ({ req, res, next }: fxnCall) => {
     throw new ApiErr(400, "Invalid password");
   }
 
+
   const { accessToken, refreshToken } = await generateToken(user._id);
 
   user = await User.findById(user._id).select("-password -refreshToken") as any
 
   const options = {
-    // httpOnly:true,
-    // Secure:true
+    httpOnly:true,
+    Secure:true
   }
   return res
     .status(200)
-    .cookie("accessToken", accessToken)
-    .cookie("refreshToken", refreshToken)
+    .cookie("accessToken", accessToken,options)
+    .cookie("refreshToken", refreshToken,options)
     .json(ApiRes(200, "user log-in successfully", user));
 });
 

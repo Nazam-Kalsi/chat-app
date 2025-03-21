@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { socket } from "../../socket";
+import { setDefaultAutoSelectFamily } from "net";
 
 function MessageInput() {
   const inputRef = useRef<HTMLInputElement>(null);

@@ -17,7 +17,7 @@ function ThemeToggler() {
     },[])
 
   return (
-    <Button onClick={toggleTheme}>
+    <Button onClick={toggleTheme} variant='ghost'>
         {darkTheme? <Sun/>: <Moon/> }
     </Button>
   )
