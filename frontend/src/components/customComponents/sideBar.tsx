@@ -34,7 +34,7 @@ function SideBar({setMessages}:SideBarProps) {
     setValue(watchedValueOfSearch);
     useEffect(()=>{
         ;(async()=>{try {
-            const res = await axios.get(`http://localhost:5000/api/user/getUser?search=${debouncedValue}`);
+            const res = await axios.get(`${import.meta.env.VITE_URL}/api/user/get-user?search=${debouncedValue}`);
             console.log(res);
             setSearchedUsers(res.data.data);
         } catch (error) {

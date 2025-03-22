@@ -67,21 +67,25 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
 });
 
 export const userLogin = handler(async ({ req, res, next }: fxnCall) => {
-  const { userName, email, password } = req.body;
-  if (!userName && !email) {
-    throw new ApiErr(400, "Invalid credentials not provided");
+  const { name, password } = req.body;
+  console.log(name, password);
+  if (!name) {
+    throw new ApiErr(400, "Invalid, credentials not provided");
   }
   if (!password) {
     throw new ApiErr(400, "password is required");
   }
+  
+  let query:any={}
+  if(name.includes('@')){
+    query.email=name;
+  }else{
+    query.userName=name;
+  }
 
-  let user = await User.findOne({
-    $or: [
-      { userName }, { email }
-    ]
-  })
+  let user = await User.findOne(query);
   if (!user) {
-    return new ApiErr(400, "User not found.")
+    throw new ApiErr(400, "User not found.")
   }
 
   const verifyPassword = await user.checkPassword(password);
@@ -92,17 +96,18 @@ export const userLogin = handler(async ({ req, res, next }: fxnCall) => {
 
   const { accessToken, refreshToken } = await generateToken(user._id);
 
+  console.log(accessToken, refreshToken);
   user = await User.findById(user._id).select("-password -refreshToken") as any
 
   const options = {
-    httpOnly:true,
-    Secure:true
+    httpOnly: true,
+    Secure: true
   }
   return res
     .status(200)
-    .cookie("accessToken", accessToken,options)
-    .cookie("refreshToken", refreshToken,options)
-    .json(ApiRes(200, "user log-in successfully", user));
+    .cookie("accessToken", accessToken)
+    .cookie("refreshToken", refreshToken)
+    .json(ApiRes(200, "user log-in successfully",user));
 });
 
 export const userLogout = handler(async ({ req, res, next }: fxnCall) => {
@@ -129,24 +134,24 @@ export const userLogout = handler(async ({ req, res, next }: fxnCall) => {
     .json(ApiRes(200, "user log-out successfully"));
 });
 
-export const getUser = handler(async({req,res,next}:fxnCall)=>{
-  const {search} =req.query;
-  if(!search){
-    throw new ApiErr(400,"search query is required.")
+export const getUser = handler(async ({ req, res, next }: fxnCall) => {
+   const {search}  =  req.query; 
+  if (!search) {
+    throw new ApiErr(400, "search query is required.")
   }
 
-  const user = User.find({
-    userName:{
-      $regex:search,
-      $options:"i"
+  const user = await User.find({
+    userName: {
+      $regex: search,
+      $options: "i" //Case senstive
     }
   })
 
-  if(!user){
-    throw new ApiErr(404,"user not found.")
+  if (!user) {
+    throw new ApiErr(404, "user not found.")
   }
   return res.status(200)
-  .json(ApiRes(200,"User Found",user));
+    .json(ApiRes(200, "User Found", user));
 })
 
 export const getFriends = handler(async ({ req, res, next }: fxnCall) => {
