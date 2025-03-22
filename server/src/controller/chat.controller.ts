@@ -7,9 +7,9 @@ import { fxnCall } from "../types.ts";
 import mongoose from "mongoose";
 
 export const createChat = handler(async ({ req, res, next }: fxnCall) => {
-  const { reqID } = req.params;
-
-  const reciever = await User.findById(reqID);
+  const { friendId } = req.params;
+  console.log("reqID : ",friendId);
+  const reciever = await User.findById(friendId);
   if (!reciever) {
     throw new ApiErr(400, "user not existed");
   }
@@ -23,7 +23,7 @@ export const createChat = handler(async ({ req, res, next }: fxnCall) => {
             participants: { $elemMatch: { $eq: req.user._id } },
           },
           {
-            participants: { $elemMatch: { $eq: reqID } },
+            participants: { $elemMatch: { $eq: friendId } },
           },
         ],
       },
@@ -47,7 +47,7 @@ export const createChat = handler(async ({ req, res, next }: fxnCall) => {
     },
   ]);
 
-  if (ExistingChat) {
+  if (ExistingChat.length) {
     return res
       .status(200)
       .json(ApiRes(200, "chat fetched successfully", ExistingChat));
@@ -55,7 +55,7 @@ export const createChat = handler(async ({ req, res, next }: fxnCall) => {
 
   const newChat = await Chat.create({
     name: "one-on-one-chat",
-    participants: [req.user._id, new mongoose.Types.ObjectId(reqID)],
+    participants: [req.user._id, new mongoose.Types.ObjectId(friendId)],
     admin: req.user.user_id,
   });
 
@@ -74,9 +74,11 @@ export const createChat = handler(async ({ req, res, next }: fxnCall) => {
 export const getChats = handler(async ({ req, res, next }: fxnCall) => {
   const id = req.user._id;
   const chats = await Chat.find({
-    participants: { $eleMatch: { $eq: id } },
-  }).populate("participants", "-password");
+    // participants: { $eleMatch: { $eq: id } },
+    participants: { $in: [id] }
+  }).populate("participants");
 
+  console.log("chats : ",chats)
   // if(!chats.length){
   //     throw new ApiErr(400,"no previous chats")
   // }

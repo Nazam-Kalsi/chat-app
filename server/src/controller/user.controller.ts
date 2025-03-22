@@ -6,6 +6,7 @@ import { fxnCall } from "../types.ts";
 import { Request, Response, NextFunction } from "express";
 import { Chat } from "../models/chat.model.ts";
 import mongoose from "mongoose";
+import { pipeline } from "stream";
 
 
 export const generateToken = async (id: any) => {
@@ -75,12 +76,12 @@ export const userLogin = handler(async ({ req, res, next }: fxnCall) => {
   if (!password) {
     throw new ApiErr(400, "password is required");
   }
-  
-  let query:any={}
-  if(name.includes('@')){
-    query.email=name;
-  }else{
-    query.userName=name;
+
+  let query: any = {}
+  if (name.includes('@')) {
+    query.email = name;
+  } else {
+    query.userName = name;
   }
 
   let user = await User.findOne(query);
@@ -101,13 +102,13 @@ export const userLogin = handler(async ({ req, res, next }: fxnCall) => {
 
   const options = {
     httpOnly: true,
-    Secure: true
+    Secure: false,
   }
   return res
     .status(200)
-    .cookie("accessToken", accessToken)
-    .cookie("refreshToken", refreshToken)
-    .json(ApiRes(200, "user log-in successfully",user));
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(ApiRes(200, "user log-in successfully", user));
 });
 
 export const userLogout = handler(async ({ req, res, next }: fxnCall) => {
@@ -135,7 +136,7 @@ export const userLogout = handler(async ({ req, res, next }: fxnCall) => {
 });
 
 export const getUser = handler(async ({ req, res, next }: fxnCall) => {
-   const {search}  =  req.query; 
+  const { search } = req.query;
   if (!search) {
     throw new ApiErr(400, "search query is required.")
   }
@@ -169,10 +170,22 @@ export const getFriends = handler(async ({ req, res, next }: fxnCall) => {
           }
         ]
       }
+    }, {
+      $lookup: {
+        from: 'users',
+        localField: 'participants',
+        foreignField: '_id',
+        as: 'participants',
+        pipeline: [{
+          $project: {
+            userName: 1,
+            _id: 1
+          }
+        }]
+      }
     }
   ])
 
-  // const friends=user.friends;
   return res
     .status(200)
     .json(ApiRes(200, "friends list", friends));

@@ -9,6 +9,7 @@ interface JwtPayloadWithId extends JwtPayload{
 }
 
 export const verifyToken=handler(async({req,res,next}:fxnCall)=>{
+   
     const token=req.cookies?.accessToken
     if(!token) throw new ApiErr(401,'Unauthorized');
     if(process.env.ACCESS_TOKEN_SECRET){
@@ -18,6 +19,4 @@ export const verifyToken=handler(async({req,res,next}:fxnCall)=>{
         req.user=user;
         next();
     }
-
-
 })

@@ -12,46 +12,56 @@ type ChatsProps = {
 };
 type SideBarProps = {
     setMessages: any;
+    setChat:any;
 };
 
 function Chats({ name, time, onClick }: ChatsProps) {
+    const d = new Date(time);
     return (
         <button className="border-b p-2" onClick={onClick}>
             <p className="font-semibold mb-2">{name}</p>
-            <p className="text-gray-500 text-sm">{time}</p>
+            <p className="text-gray-500 text-sm">{d.toLocaleDateString()} &nbsp;&nbsp;{d.toLocaleTimeString()}</p>
         </button>
     );
 }
 
-function SideBar({ setMessages }: SideBarProps) {
+function SideBar({ setMessages, setChat }: SideBarProps) {
     const [existingFriends, setExistingFriends] = useState<any[]>([]);
     const [searchedUsers, setSearchedUsers] = useState<any[]>([]);
     const [open, setOpen] = useState<boolean>(false);
+    const [page, setPage] = useState<number>(1);
+    const [limit, setLimit] = useState<number>(10);
     const { register, watch } = useForm();
-    const [debouncedValue, setValue] = useDebounceValue("", 800);
+    const [debouncedValue, setValue] = useDebounceValue<string>("", 800);
     const watchedValueOfSearch = watch("search");
     setValue(watchedValueOfSearch);
     useEffect(() => {
+        if(debouncedValue){
         (async () => {
             try {
                 const res = await axios.get(
-                    `${import.meta.env.VITE_URL}/api/user/getUser?search=${debouncedValue}`
+                    `${import.meta.env.VITE_URL}/api/user/get-user?search=${debouncedValue}`
                 );
                 console.log(res);
                 setSearchedUsers(res.data.data);
             } catch (error) {}
         })();
+    }
         console.log(debouncedValue);
     }, [debouncedValue]);
 
     const handleChatClick = async (chat: any) => {
         console.log(chat);
         try {
-            const res = await axios.get(
-                `${import.meta.env.VITE_URL}/api/chat/get-chat`
+            const res = await axios.post(
+                `${import.meta.env.VITE_URL}/api/message/get-messages`,
+                {chatId:chat._id},
+                {withCredentials:true}
             );
-            console.log(res);
-            setMessages((prev: any) => prev + res.data.data);
+            setPage((prev:number)=>prev+1);
+            console.log(res.data.data.messages);
+            setMessages((prev: any) =>[...prev,...res.data.data.messages]);
+            setChat(chat);
         } catch (error) {
             console.log(error);
         }
@@ -60,7 +70,8 @@ function SideBar({ setMessages }: SideBarProps) {
     const getAllFriends = async () => {
         try {
             const res = await axios.get(
-                `${import.meta.env.VITE_URL}/api/user/get-friends`
+                `${import.meta.env.VITE_URL}/api/user/get-friends`,
+                {withCredentials:true}
             );
             console.log(res);
             setExistingFriends(res?.data?.data);
@@ -68,9 +79,9 @@ function SideBar({ setMessages }: SideBarProps) {
             console.log(e);
         }
     };
-    // useEffect(() => {
-    //     getAllFriends();
-    // }, []);
+    useEffect(() => {
+        getAllFriends();
+    }, []);
 
     return (
         <div className="w-4/12 border-r">
@@ -91,7 +102,7 @@ function SideBar({ setMessages }: SideBarProps) {
                 existingFriends.map((chat: any, index: number) => {
                     return (
                         <Chats
-                            name={chat.participants[0]}
+                            name={chat.participants[0].userName}
                             time={chat.createdAt}
                             key={index}
                             onClick={() => handleChatClick(chat)}

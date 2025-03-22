@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 
 export const sendMessageInChat = handler(async ({ req, res, next }: fxnCall) => {
     const { chatID } = req.params;
-    const messageContent = req.body;
+    const {messageContent} = req.body;
     const senderID = req.user;
     if (!senderID) throw new ApiErr(400, "User is'nt authenticated.")
     if (!messageContent) throw new ApiErr(400, `Message content is of 0 length or message is'nt provided`);
@@ -60,8 +60,9 @@ export const deleteMessageInChat = handler(async ({ req, res, next }: fxnCall) =
 })
 
 export const getMessages = handler(async({req,res,next}:fxnCall)=>{
-    const {page,limit} = req.query;
-    const chatId = req.body;
+    // const {page,limit} = req.query;
+    const {chatId} = req.body;
+    console.log(chatId);
     const messages = await Message.aggregate([
         {
             $match:{
@@ -70,21 +71,29 @@ export const getMessages = handler(async({req,res,next}:fxnCall)=>{
         },
         {
             $sort:{
-                createdAt:-1
+                createdAt:1
             }
         }
         ,{
             $group:{
                 _id:'$chat',
+                messages: {
+                    $push: {
+                        message: "$message",
+                        createdAt:'$createdAt',
+                        sender:'$sender',
+                    }
+                }
             }
         }
     ]);
+    console.log(messages);
     if(!messages)throw new ApiErr(400,"NO message found.");
 
 
     return res
     .status(200)
-    .json(ApiRes(200,"messagesFetched successfully",messages));
+    .json(ApiRes(200,"Messages fetched successfully",messages[0]));
 
 
 })

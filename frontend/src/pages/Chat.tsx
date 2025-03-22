@@ -10,15 +10,17 @@ import { Button } from "@/components/ui/button";
 import { SendHorizonal } from "lucide-react";
 import MessageContainer from "@/components/customComponents/messageContainer";
 import SideBar from "@/components/customComponents/sideBar";
+import axios from "axios";
 
 function Chat() {
     // const navigate = useNavigate();
-    // const {user} = useUser();
+    const {user} = useUser() as any;
     // if(!user){
     //     navigate('/sign-in');
     // }
     // console.log(user);
-    const [currentMessages, setCurrentMessages] = useState<string[]>([]);
+    const [currentMessages, setCurrentMessages] = useState<any>([]);
+    const [chat,setChat] = useState<any>();
     const { register, handleSubmit,setValue } = useForm<z.infer<typeof chatSchema>>({
         resolver: zodResolver(chatSchema),
         defaultValues: {
@@ -28,17 +30,23 @@ function Chat() {
 
     const submit = async (data: z.infer<typeof chatSchema>) => {
         console.log(data);
-        setCurrentMessages([...currentMessages, data.message]);
+        setCurrentMessages([...currentMessages, {message:data.message, sender:user._id, createdAt:new Date()}]);
+        try{
+            const res = await axios.post(`${import.meta.env.VITE_URL}/api/message/send-message/${chat._id}`,
+                {messageContent:data.message},{withCredentials:true}
+            )
+        }catch(error){console.log(error)}
         setValue('message','');
     };
+    console.log("currentMessages : ",currentMessages,chat);
 
     return (
         <div className="flex px-2">
-            <SideBar setMessages={setCurrentMessages}/>
+            <SideBar setMessages={setCurrentMessages} setChat={setChat}/>
             <div className="flex flex-col gap-2 w-full p-2 rounded-md h-[35rem]">
-                <div className="h-full">
-                    {currentMessages.map((message) => {
-                        return <MessageContainer message={message} />;
+                <div className="h-full flex flex-col">
+                    {currentMessages && currentMessages?.map((message:string,index:number) => {
+                        return <MessageContainer message={message} key={index} />;
                     })}
                 </div>
                 <form className="flex relative">

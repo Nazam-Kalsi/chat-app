@@ -1,33 +1,35 @@
-import axios from 'axios';
-import React from 'react'
+import axios from "axios";
+import React from "react";
 
 type Props = {
-    user:any;
-}
+    user: any;
+};
 
-
-const addFriend = async(user:any)=>{
+const addFriend = async (user: any) => {
     try {
-        const res = axios.get(`${import.meta.env.VITE_URL}/api/chat/create-chat`)
+        const res = await axios.post(
+            `${import.meta.env.VITE_URL}/api/chat/create-chat/${user._id}`,
+            {},
+            {withCredentials: true}
+        );
+        console.log(res);
     } catch (error) {
-        
+        console.log(error);
     }
-}
-function SearchModal({user}: Props) {
-  return (
-    <div>
-        {
-            user.map(()=>{
-                return(
-                    <div className='p-2'>
-                        {user.username}
-                        <button onClick={()=>addFriend(user)}>+</button>
+};
+function SearchModal({ user }: Props) {
+    return (
+        <div>
+            {user.map((u: any) => {
+                return (
+                    <div className="p-2">
+                        {u.userName}
+                        <button onClick={() => addFriend(u)}>+</button>
                     </div>
-                )
-            })
-        }
-    </div>
-  )
+                );
+            })}
+        </div>
+    );
 }
 
-export default SearchModal
+export default SearchModal;

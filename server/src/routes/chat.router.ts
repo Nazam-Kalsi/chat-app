@@ -5,7 +5,7 @@ import { addToGroupChat, changeGroupName, createChat, createOrGetGroupChat, getC
 const router = Router();
 
 
-router.route(`/create-chat`).post(verifyToken,createChat);
+router.route(`/create-chat/:friendId`).post(verifyToken,createChat);
 router.route(`/get-chat`).get(verifyToken,getChats);
 router.route(`/create-group-chat`).get(verifyToken,createOrGetGroupChat);
 router.route(`/change-group-chat-name`).post(verifyToken,changeGroupName);
