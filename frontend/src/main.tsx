@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import SignUp from './pages/SignUp.tsx';
 import SignIn from './pages/SignIn.tsx';
 import Chat from './pages/Chat.tsx';
+import { UserContextProvider } from './context/session.tsx';
 
 const CustomRoutes = ()=> {
   return(
@@ -21,8 +22,10 @@ const CustomRoutes = ()=> {
 
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
+  <UserContextProvider>
   <BrowserRouter>
     <CustomRoutes/>
   </BrowserRouter>
+  </UserContextProvider>
   // </StrictMode>,
 )

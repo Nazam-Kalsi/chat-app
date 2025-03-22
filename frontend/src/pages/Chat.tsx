@@ -13,12 +13,11 @@ import SideBar from "@/components/customComponents/sideBar";
 import axios from "axios";
 
 function Chat() {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const {user} = useUser() as any;
-    // if(!user){
-    //     navigate('/sign-in');
-    // }
-    // console.log(user);
+    if(!user){
+        navigate('/sign-in');
+    }
     const [currentMessages, setCurrentMessages] = useState<any>([]);
     const [chat,setChat] = useState<any>();
     const { register, handleSubmit,setValue } = useForm<z.infer<typeof chatSchema>>({

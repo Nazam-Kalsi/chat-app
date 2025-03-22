@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { userLogin, userRegistration, userLogout, getFriends, getUser } from "../controller/user.controller.ts";
+import { userLogin, userRegistration, userLogout, getFriends, getUser, getCurrentUser } from "../controller/user.controller.ts";
 import { verifyToken } from "../middleware/auth.middleware.ts";
 const router = Router();
 
@@ -10,5 +10,6 @@ router.route('/sign-in').post(userLogin);
 router.route('/sign-out').get(verifyToken,userLogout);
 router.route('/get-friends').get(verifyToken,getFriends);
 router.route('/get-user').get(getUser);
+router.route('/get-current-user').get(verifyToken,getCurrentUser);
 
 export default router;

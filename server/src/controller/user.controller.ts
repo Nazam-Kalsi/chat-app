@@ -28,7 +28,6 @@ export const generateToken = async (id: any) => {
 
 export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
   const { userName, email, password } = req.body;
-  console.log(userName, email, password);
 
   if (
     [userName, email, password].some((field) => {
@@ -47,7 +46,6 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
   });
 
   if (existingUser) {
-    console.log(existingUser);
     throw new ApiErr(400, "User already exist.");
   }
 
@@ -69,7 +67,6 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
 
 export const userLogin = handler(async ({ req, res, next }: fxnCall) => {
   const { name, password } = req.body;
-  console.log(name, password);
   if (!name) {
     throw new ApiErr(400, "Invalid, credentials not provided");
   }
@@ -191,3 +188,11 @@ export const getFriends = handler(async ({ req, res, next }: fxnCall) => {
     .json(ApiRes(200, "friends list", friends));
 })
 
+export const getCurrentUser = handler(async({req,res,next}:fxnCall)=>{
+    let user = req.user;
+    if(!user)throw new ApiErr(400,'Need to login in.');
+    delete user.password;
+    console.log(user);
+    return res.status(200)
+    .json(ApiRes(200,"User fetched successfully",user));
+})

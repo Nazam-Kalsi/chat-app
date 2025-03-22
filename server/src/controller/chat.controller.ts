@@ -8,7 +8,6 @@ import mongoose from "mongoose";
 
 export const createChat = handler(async ({ req, res, next }: fxnCall) => {
   const { friendId } = req.params;
-  console.log("reqID : ",friendId);
   const reciever = await User.findById(friendId);
   if (!reciever) {
     throw new ApiErr(400, "user not existed");
@@ -78,7 +77,6 @@ export const getChats = handler(async ({ req, res, next }: fxnCall) => {
     participants: { $in: [id] }
   }).populate("participants");
 
-  console.log("chats : ",chats)
   // if(!chats.length){
   //     throw new ApiErr(400,"no previous chats")
   // }

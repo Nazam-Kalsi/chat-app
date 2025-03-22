@@ -62,7 +62,6 @@ export const deleteMessageInChat = handler(async ({ req, res, next }: fxnCall) =
 export const getMessages = handler(async({req,res,next}:fxnCall)=>{
     // const {page,limit} = req.query;
     const {chatId} = req.body;
-    console.log(chatId);
     const messages = await Message.aggregate([
         {
             $match:{
@@ -87,7 +86,6 @@ export const getMessages = handler(async({req,res,next}:fxnCall)=>{
             }
         }
     ]);
-    console.log(messages);
     if(!messages)throw new ApiErr(400,"NO message found.");
 
 
