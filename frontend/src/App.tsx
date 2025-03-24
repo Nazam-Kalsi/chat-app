@@ -24,9 +24,6 @@ function App() {
         })();
     }, []);
 
-    socket.on("welcome", (arg) => {
-        setData(arg);
-    });
     return (
         <>
             <ThemeToggler />

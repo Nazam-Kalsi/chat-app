@@ -11,3 +11,9 @@ declare module 'Express' {
         user?:any
     }
 }
+
+declare module "socket.io" {
+    interface Socket {
+      userName?: string;
+    }
+  }

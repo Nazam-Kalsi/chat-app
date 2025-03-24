@@ -19,7 +19,7 @@ export const socketEvents=(io:Server)=>{
 
         socket.on("send-message",(res:MessageResponse)=>{
             console.log(res)
-            io.emit("message",res.text)
+            socket.broadcast.emit('message',res);
         })
 
         //join room

@@ -17,6 +17,16 @@ export const io:socketServer = new socketServer(server,{
     cors:corsOptions,
 }) 
 
+io.use((socket, next) => {
+  const userName = socket.handshake.auth.username;
+  if (!userName) {
+    return next(new Error("invalid username"));
+  }
+  socket.userName = userName;
+  console.log("userName : ",userName);
+  next();
+});
+
 app.use(express.json({
   limit:"20kb"
 }))
