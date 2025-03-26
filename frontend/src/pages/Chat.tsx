@@ -11,27 +11,34 @@ import { SendHorizonal } from "lucide-react";
 import MessageContainer from "@/components/customComponents/messageContainer";
 import SideBar from "@/components/customComponents/sideBar";
 import axios from "axios";
-import {socket} from '../socket.ts'
+import {socket} from '../socket'
 function Chat() {
     const messagesContainerRef = useRef<HTMLDivElement | null>(null);
     const [currentMessages, setCurrentMessages] = useState<any>([]);
     const [chat,setChat] = useState<any>();
+    const [userSocketId,setUserSocketId] = useState<string>('');
     const navigate = useNavigate();
-    const {user} = useUser() as any;
-    if(!user){
-        navigate('/sign-in');
-    }
-
-    useEffect(()=>{
-        if(user){
-            socket.auth = { userName:user.userName };
-            socket.connect();
-        }
-    },[user])
+    const {user,setUser} = useUser() as any;
+    // if(!user){
+    //     navigate('/sign-in');
+    // }
 
     
-
+    
     socket.on("welcome", (arg) => {
+        setUserSocketId(arg);
+        ;(async()=>{try {
+            const res = await axios.patch(`${import.meta.env.VITE_URL}/api/user/update-user`,{
+                socketId:arg
+            },{
+                withCredentials:true
+            });
+            console.log("Update socket id in db : ",res);
+            if(!res) throw new Error;
+            setUser(res.data.data);
+           } catch (error) {
+                console.log(error);
+           }})();
         console.log(arg);
     });
 

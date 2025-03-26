@@ -15,7 +15,7 @@ export const socketEvents=(io:Server)=>{
     
     io.on("connection", (socket:Socket) => {        
         
-        socket.emit("welcome", `Welcome : ${socket.id}`); 
+        socket.emit("welcome", `${socket.id}`); 
 
         socket.on("send-message",(res:MessageResponse)=>{
             console.log(res)
@@ -23,15 +23,15 @@ export const socketEvents=(io:Server)=>{
         })
 
         //join room
-        socket.on("room",(res:RoomResponse)=>{
-            socket.join(res.roomName);
-            io.to(res.roomName).emit('user-joined', `${res.userName} joined`);
-            console.log(res)
+        socket.on("create-and-join-room",(res:any)=>{
+            // socket.join(res.roomName);
+            // io.to(res.roomName).emit('user-joined', `${res.userName} joined`);
+            console.log("res in io ",res)
         })
 
-        socket.on("disconnect",()=>{
-            console.log("user disconnect.")
-        })
+        // socket.on("disconnect",()=>{
+        //     console.log("user disconnect.")
+        // })
     });
 
     

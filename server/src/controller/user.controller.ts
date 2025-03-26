@@ -195,3 +195,23 @@ export const getCurrentUser = handler(async({req,res,next}:fxnCall)=>{
     return res.status(200)
     .json(ApiRes(200,"User fetched successfully",user));
 })
+
+export const updateUser = handler(async({req,res,next}:fxnCall)=>{
+    const user = req.user;
+    const {socketId} = req.body;
+    console.log(socketId);
+
+    const updatedUser = await User.findByIdAndUpdate({
+      _id:user._id
+    },
+    {
+      socketId
+    },
+    {new:true}
+  );
+
+  console.log("updatedUser : ",updatedUser);
+
+  return res.status(200)
+  .json(ApiRes(200,"User updated successfullly",updateUser));
+})

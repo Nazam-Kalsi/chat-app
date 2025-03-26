@@ -5,6 +5,8 @@ import axios from "axios";
 import { useDebounceValue } from "usehooks-ts";
 import { useForm } from "react-hook-form";
 import SearchModal from "./searchModal";
+import { io } from "socket.io-client";
+import { socket } from "@/socket";
 type ChatsProps = {
     name: string;
     time: string;
@@ -58,6 +60,11 @@ function SideBar({ setMessages, setChat }: SideBarProps) {
                 {chatId:chat._id},
                 {withCredentials:true}
             );
+            if(!res)throw new Error;
+
+            await socket.emit('create-and-join-room',{
+                a:12
+            })            
             setPage((prev:number)=>prev+1);
             console.log(res.data.data.messages);
             setMessages((prev: any) =>[...prev,...res.data.data.messages]);

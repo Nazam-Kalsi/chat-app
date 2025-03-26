@@ -6,13 +6,14 @@ import { Message } from "../models/message.model.ts";
 import { User } from "../models/user.model.ts";
 import { Chat } from "../models/chat.model.ts";
 import mongoose from "mongoose";
+import { room } from "../utils/joinRoom.ts";
 
 export const sendMessageInChat = handler(async ({ req, res, next }: fxnCall) => {
     const { chatID } = req.params;
     const {messageContent} = req.body;
     const senderID = req.user;
-    if (!senderID) throw new ApiErr(400, "User is'nt authenticated.")
-    if (!messageContent) throw new ApiErr(400, `Message content is of 0 length or message is'nt provided`);
+    if (!senderID) throw new ApiErr(400, "User isn't authenticated.")
+    if (!messageContent) throw new ApiErr(400, `Message content is of 0 length or message isn't provided`);
     const chat = await Chat.findById(chatID);
     if (!chat) throw new ApiErr(400, "Chat not found.");
 
@@ -86,8 +87,12 @@ export const getMessages = handler(async({req,res,next}:fxnCall)=>{
             }
         }
     ]);
+
+
     if(!messages)throw new ApiErr(400,"NO message found.");
 
+    const r= await room('create-room','r1');
+    console.log(r);
 
     return res
     .status(200)

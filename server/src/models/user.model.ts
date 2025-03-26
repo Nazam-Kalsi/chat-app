@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema<IUser>(
     refreshToken: {
       type: String,
     },
+    socketId:{
+      type:String,
+      default:null
+    }
   },
   { timestamps: true }
 );
