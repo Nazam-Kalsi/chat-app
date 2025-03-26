@@ -62,9 +62,13 @@ function SideBar({ setMessages, setChat }: SideBarProps) {
             );
             if(!res)throw new Error;
 
-            await socket.emit('create-and-join-room',{
-                a:12
-            })            
+            await socket.emit('create-and-join-room',
+                chat.participants[1].socketId,
+                {
+                u1:chat.participants[0].userName,
+                u2:chat.participants[1].userName,
+                }
+        )            
             setPage((prev:number)=>prev+1);
             console.log(res.data.data.messages);
             setMessages((prev: any) =>[...prev,...res.data.data.messages]);

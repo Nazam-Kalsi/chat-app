@@ -25,26 +25,28 @@ function Chat() {
 
     
     
-    socket.on("welcome", (arg) => {
+    socket.on("welcome", async(arg) => {
         setUserSocketId(arg);
-        ;(async()=>{try {
-            const res = await axios.patch(`${import.meta.env.VITE_URL}/api/user/update-user`,{
-                socketId:arg
-            },{
-                withCredentials:true
-            });
+        try {
+            const res = await axios.patch(`${import.meta.env.VITE_URL}/api/user/update-user`,
+                {socketId:arg},
+                {withCredentials:true});
             console.log("Update socket id in db : ",res);
             if(!res) throw new Error;
             setUser(res.data.data);
            } catch (error) {
                 console.log(error);
-           }})();
+           }
         console.log(arg);
     });
 
-    socket.on('message',(m)=>{
-        console.log("message recieved : ",m,user);
-        setCurrentMessages([...currentMessages, {message:m.message, sender:m.sender, createdAt:new Date()}]);
+    // socket.on('message',(m)=>{
+    //     console.log("message recieved : ",m,user);
+    //     setCurrentMessages([...currentMessages, {message:m.message, sender:m.sender, createdAt:new Date()}]);
+    // })
+
+    socket.on('private-message',(a,b)=>{
+        console.log("private : ",a,b);
     })
     
     const { register, handleSubmit,setValue } = useForm<z.infer<typeof chatSchema>>({
@@ -71,7 +73,7 @@ function Chat() {
                 {messageContent:data.message},{withCredentials:true}
             )
             if(res){
-                socket.emit('send-message',{message:data.message, sender:user._id});
+                // socket.emit('send-message',{message:data.message, sender:user._id});
             }
         }catch(error){console.log(error)}
         setValue('message','');
