@@ -176,7 +176,8 @@ export const getFriends = handler(async ({ req, res, next }: fxnCall) => {
         pipeline: [{
           $project: {
             userName: 1,
-            _id: 1
+            _id: 1,
+            socketId:1,
           }
         }]
       }
@@ -213,5 +214,5 @@ export const updateUser = handler(async({req,res,next}:fxnCall)=>{
   console.log("updatedUser : ",updatedUser);
 
   return res.status(200)
-  .json(ApiRes(200,"User updated successfullly",updateUser));
+  .json(ApiRes(200,"User updated successfullly",updatedUser));
 })
