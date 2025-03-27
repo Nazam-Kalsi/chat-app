@@ -8,12 +8,12 @@ const port = process.env.PORT || 3000;
 
 dbConnect().then(() => {
   server.on("error", (error) => {
-    console.log(error);
+    console.log("error : ",error);
   });
   server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     socketEvents(io);
   });
 })
-.catch(err => console.log(err));
+.catch(err => console.log("error occur :",err));
 

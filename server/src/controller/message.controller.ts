@@ -61,7 +61,8 @@ export const deleteMessageInChat = handler(async ({ req, res, next }: fxnCall) =
 })
 
 export const getMessages = handler(async({req,res,next}:fxnCall)=>{
-    // const {page,limit} = req.query;
+    const {page,limit} = req.query;
+    console.log("page,limit : ",page,limit)
     const {chatId} = req.body;
     const messages = await Message.aggregate([
         {
@@ -73,7 +74,13 @@ export const getMessages = handler(async({req,res,next}:fxnCall)=>{
             $sort:{
                 createdAt:1
             }
-        }
+        },{
+            $skip: (page - 1) * limit
+          },
+          
+          {
+            $limit: limit
+          }
         ,{
             $group:{
                 _id:'$chat',
@@ -93,7 +100,12 @@ export const getMessages = handler(async({req,res,next}:fxnCall)=>{
 
     const r= await room('create-room','r1');
     console.log(r);
+    if(messages.length===0){
 
+        return res
+        .status(200)
+        .json(ApiRes(200,"Messages fetched successfully",{messages:[]}));
+    }
     return res
     .status(200)
     .json(ApiRes(200,"Messages fetched successfully",messages[0]));

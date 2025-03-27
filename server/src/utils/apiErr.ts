@@ -12,3 +12,16 @@ class ApiErr extends Error {
 }
 
 export {ApiErr};
+
+export const errorHandlerMiddleWare = (err:any, req:any, res:any, next:any) => {
+    if (err instanceof ApiErr) {
+      return res.status(err.statusCode).json({
+        message: err.message,
+        error: err.error,
+      });
+    }
+    return res.status(500).json({
+      message: "Something went wrong!",
+      error: err.message || err,
+    });
+  }

@@ -1,9 +1,13 @@
 import axios from "axios";
-import React from "react";
+import { ArrowBigDownDash, Loader2, UserPlus2Icon, XCircle } from "lucide-react";
+import { useState } from "react";
 
 type Props = {
     user: any;
+    setOpen:(v:boolean)=>void
 };
+
+function SearchModal({ user, setOpen }: Props) {
 
 const addFriend = async (user: any) => {
     try {
@@ -13,21 +17,31 @@ const addFriend = async (user: any) => {
             {withCredentials: true}
         );
         console.log(res);
+        setOpen(false);
     } catch (error) {
         console.log(error);
     }
 };
-function SearchModal({ user }: Props) {
     return (
-        <div>
-            {user.map((u: any) => {
+        <div className="flex flex-col p-2 absolute border isolate bg-white/50 dark:bg-black/50 shadow-lg ring-1 ring-black/5 w-full top-16  rounded-lg backdrop-blur-xs">
+            <div className="flex justify-between items-center p-2">
+            <h5>Add friends</h5>
+            <XCircle className="self-end" strokeWidth={0.9} onClick={()=>setOpen(false)}/>
+            </div>
+            {user.loading ? <Loader2 className="animate-spin self-center"/>:
+            <div>
+            {user.user.map((u: any) => {
                 return (
-                    <div className="p-2">
-                        {u.userName}
-                        <button onClick={() => addFriend(u)}>+</button>
-                    </div>
+                    <button onClick={() => addFriend(u)} className="w-full p-2 hover:bg-white/10 rounded-md">
+                         <p className=" flex w-full items-start justify-between">
+                         {u.userName}
+                         <UserPlus2Icon strokeWidth={0.9}/>
+                         </p>
+                    </button>
                 );
             })}
+            </div>
+            }
         </div>
     );
 }

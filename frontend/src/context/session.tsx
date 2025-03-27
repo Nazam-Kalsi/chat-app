@@ -9,6 +9,8 @@ type User = {
 interface UserContextType {
     user: User | null;
     setUser: (user: User) => void;
+    loading:boolean
+    setLoading:(v:boolean)=>void
 }
 
 type UserContextProviderProps = {
@@ -18,6 +20,8 @@ type UserContextProviderProps = {
 const UserContext = createContext<UserContextType>({
     user: null,
     setUser: () => {},
+    loading:true,
+    setLoading:()=>{}
 });
 
 export const useUser = () => {
@@ -26,9 +30,10 @@ export const useUser = () => {
 
 export const UserContextProvider = ({ children }: UserContextProviderProps) => {
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
     return (
-        <UserContext.Provider value={{ user, setUser }}>
+        <UserContext.Provider value={{ user, setUser,loading,setLoading }}>
             {children}
         </UserContext.Provider>
     );

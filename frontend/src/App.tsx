@@ -6,9 +6,11 @@ import { Outlet } from "react-router";
 import ThemeToggler from "./components/customComponents/themeToggler";
 import { useUser } from "./context/session";
 import axios from "axios";
+import { Toaster } from "@/components/ui/sonner"
+
 function App() {
     const [data, setData] = useState("Not connected");
-    const { user, setUser } = useUser();
+    const { setUser,setLoading } = useUser();
     useEffect(() => {
         (async () => {
             try {
@@ -16,9 +18,13 @@ function App() {
                     `${import.meta.env.VITE_URL}/api/user/get-current-user`,
                     { withCredentials: true }
                 );
-                console.log("current user : ", res);
+                if(!res)throw new Error;
+                // console.log("current user : ", res);
                 setUser(res.data.data);
+                setData(res.data.data.userName+" - "+res.data.data._id);
+                setLoading(false);
             } catch (error) {
+                setLoading(false);
                 console.log(error);
             }
         })();
@@ -26,6 +32,7 @@ function App() {
 
     return (
         <>
+            <Toaster richColors />
             <ThemeToggler />
             <h1 className="">{data}</h1>
             <Outlet />

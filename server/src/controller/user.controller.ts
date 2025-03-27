@@ -34,11 +34,11 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
       return field === undefined || field.trim() === "";
     })
   ) {
-    throw new ApiErr(400, "All fields are required!");
+    return next(new ApiErr(400, "All fields are required!"));
   }
 
   if (!email.includes("@")) {
-    throw new ApiErr(400, "Email format is not correct.");
+    return next(new ApiErr(400, "Email format is not correct."));
   }
 
   const existingUser = await User.findOne({
@@ -46,7 +46,7 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
   });
 
   if (existingUser) {
-    throw new ApiErr(400, "User already exist.");
+    return next(new ApiErr(400, "User already exist."));
   }
 
   const newUser = await User.create({
@@ -59,7 +59,7 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
   );
 
   if (!user) {
-    throw new ApiErr(400, "User not created");
+    return next(new ApiErr(400, "User not created"));
   }
 
   return res.status(200).json(ApiRes(200, 'User created Successfully', user))
@@ -68,9 +68,11 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
 export const userLogin = handler(async ({ req, res, next }: fxnCall) => {
   const { name, password } = req.body;
   if (!name) {
-    throw new ApiErr(400, "Invalid, credentials not provided");
+    // throw new ApiErr(400, "Invalid, credentials not provided");
+    return next(new ApiErr(400, "Invalid, credentials not provided"));
   }
   if (!password) {
+    return next(new ApiErr(400, "password is required"));
     throw new ApiErr(400, "password is required");
   }
 
@@ -83,12 +85,14 @@ export const userLogin = handler(async ({ req, res, next }: fxnCall) => {
 
   let user = await User.findOne(query);
   if (!user) {
-    throw new ApiErr(400, "User not found.")
+    // throw new ApiErr(400, "User not found.")
+    return next(new ApiErr(400, "User not found."));
   }
 
   const verifyPassword = await user.checkPassword(password);
   if (!verifyPassword) {
-    throw new ApiErr(400, "Invalid password");
+    // throw new ApiErr(400, "Invalid password");
+    return next(new ApiErr(400, "Invalid password"));
   }
 
 
@@ -177,7 +181,7 @@ export const getFriends = handler(async ({ req, res, next }: fxnCall) => {
           $project: {
             userName: 1,
             _id: 1,
-            socketId:1,
+            socketId: 1,
           }
         }]
       }
@@ -189,30 +193,28 @@ export const getFriends = handler(async ({ req, res, next }: fxnCall) => {
     .json(ApiRes(200, "friends list", friends));
 })
 
-export const getCurrentUser = handler(async({req,res,next}:fxnCall)=>{
-    let user = req.user;
-    if(!user)throw new ApiErr(400,'Need to login in.');
-    delete user.password;
-    return res.status(200)
-    .json(ApiRes(200,"User fetched successfully",user));
+export const getCurrentUser = handler(async ({ req, res, next }: fxnCall) => {
+  let user = req.user;
+  if (!user) return next(new ApiErr(400, 'Need to login in.'));
+  delete user.password;
+  return res.status(200)
+    .json(ApiRes(200, "User fetched successfully", user));
 })
 
-export const updateUser = handler(async({req,res,next}:fxnCall)=>{
-    const user = req.user;
-    const {socketId} = req.body;
-    console.log(socketId);
+export const updateUser = handler(async ({ req, res, next }: fxnCall) => {
+  const user = req.user;
+  const { socketId } = req.body;
+  console.log(socketId);
 
-    const updatedUser = await User.findByIdAndUpdate({
-      _id:user._id
-    },
+  const updatedUser = await User.findByIdAndUpdate({
+    _id: user._id
+  },
     {
       socketId
     },
-    {new:true}
+    { new: true }
   );
 
-  console.log("updatedUser : ",updatedUser);
-
   return res.status(200)
-  .json(ApiRes(200,"User updated successfullly",updatedUser));
+    .json(ApiRes(200, "User updated successfullly", updatedUser));
 })

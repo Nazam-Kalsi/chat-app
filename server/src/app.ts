@@ -48,4 +48,8 @@ import messageRouter from './routes/message.route.ts'
 app.use('/api/message',messageRouter);
 
 import chatRouter from './routes/chat.router.ts'
+import { ApiErr, errorHandlerMiddleWare } from "./utils/apiErr.ts";
 app.use('/api/chat',chatRouter);
+
+
+app.use(errorHandlerMiddleWare);

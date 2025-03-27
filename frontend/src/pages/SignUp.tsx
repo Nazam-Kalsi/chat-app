@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { toast } from "sonner"
 
 export default function Signup() {
   interface FormElements extends HTMLFormControlsCollection {
@@ -20,7 +21,7 @@ export default function Signup() {
       password: e.currentTarget.elements.password.value,
     };
     try {
-      const res = await fetch(`http://localhost:3000/api/user/sign-up`, {
+      const res = await fetch(`${import.meta.env.VITE_URL}/api/user/sign-up`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -29,16 +30,13 @@ export default function Signup() {
       });
       console.log(res)
       if (!res.ok) {
-        throw new Error("Something went wrong");
+        const errorData = await res.json();
+        throw new Error(errorData.message);
       }
       const data = await res.json();
       console.log(data);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.log("Unexpected Error:", error.message);
-      } else {
-        console.log("Unexpected Error:", error);
-      }
+    } catch (error:any) {
+     toast.error(error.messsage);
     }
   };
   return (

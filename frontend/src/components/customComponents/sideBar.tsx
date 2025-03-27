@@ -14,64 +14,72 @@ type ChatsProps = {
 };
 type SideBarProps = {
     setMessages: any;
-    setChat:any;
+    setChat: any;
+    setPage:any;
 };
 
 function Chats({ name, time, onClick }: ChatsProps) {
     const d = new Date(time);
     return (
-        <button className="border-b p-2" onClick={onClick}>
+        <button className="border-b p-2 w-full" onClick={onClick}>
             <p className="font-semibold mb-2">{name}</p>
-            <p className="text-gray-500 text-sm">{d.toLocaleDateString()} &nbsp;&nbsp;{d.toLocaleTimeString()}</p>
+            <p className="text-gray-500 text-sm">
+                {d.toLocaleDateString()} &nbsp;&nbsp;{d.toLocaleTimeString()}
+            </p>
         </button>
     );
 }
 
-function SideBar({ setMessages, setChat }: SideBarProps) {
+function SideBar({ setMessages, setChat, setPage }: SideBarProps) {
     const [existingFriends, setExistingFriends] = useState<any[]>([]);
-    const [searchedUsers, setSearchedUsers] = useState<any[]>([]);
+    const [search, setSearch] = useState<{ loading: boolean; user: any }>({
+        loading: true,
+        user: [],
+    });
     const [open, setOpen] = useState<boolean>(false);
-    const [page, setPage] = useState<number>(1);
-    const [limit, setLimit] = useState<number>(10);
     const { register, watch } = useForm();
     const [debouncedValue, setValue] = useDebounceValue<string>("", 800);
     const watchedValueOfSearch = watch("search");
     setValue(watchedValueOfSearch);
     useEffect(() => {
-        if(debouncedValue){
-        (async () => {
-            try {
-                const res = await axios.get(
-                    `${import.meta.env.VITE_URL}/api/user/get-user?search=${debouncedValue}`
-                );
-                console.log(res);
-                setSearchedUsers(res.data.data);
-            } catch (error) {}
-        })();
-    }
+        if (debouncedValue) {
+            (async () => {
+                try {
+                    const res = await axios.get(
+                        `${
+                            import.meta.env.VITE_URL
+                        }/api/user/get-user?search=${debouncedValue}`
+                    );
+                    console.log(res);
+                    setSearch({ loading: false, user: res.data.data });
+                    setOpen(true);
+                } catch (error) {}
+            })();
+        }
         console.log(debouncedValue);
     }, [debouncedValue]);
 
     const handleChatClick = async (chat: any) => {
         console.log(chat);
+        setPage(1);
         try {
             const res = await axios.post(
-                `${import.meta.env.VITE_URL}/api/message/get-messages`,
-                {chatId:chat._id},
-                {withCredentials:true}
+                `${import.meta.env.VITE_URL}/api/message/get-messages?page=1&limit=10`,
+                { chatId: chat._id },
+                { withCredentials: true }
             );
-            if(!res)throw new Error;
+            if (!res) throw new Error();
 
-            await socket.emit('create-and-join-room',
-                chat.participants[1].socketId,
-                {
-                u1:chat.participants[0].userName,
-                u2:chat.participants[1].userName,
-                }
-        )            
-            setPage((prev:number)=>prev+1);
-            console.log(res.data.data.messages);
-            setMessages((prev: any) =>[...prev,...res.data.data.messages]);
+            // await socket.emit(
+            //     "create-and-join-room",
+            //     // chat.participants[1].socketId,
+            //     {
+            //         u1: chat.participants[0].userName,
+            //         u2: chat.participants[1].userName,
+            //     }
+            // );
+            console.log("res. : ",res.data.data.messages);
+            setMessages((prev: any) => [...res.data.data.messages]);
             setChat(chat);
         } catch (error) {
             console.log(error);
@@ -82,9 +90,9 @@ function SideBar({ setMessages, setChat }: SideBarProps) {
         try {
             const res = await axios.get(
                 `${import.meta.env.VITE_URL}/api/user/get-friends`,
-                {withCredentials:true}
+                { withCredentials: true }
             );
-            console.log(res);
+            // console.log(res);
             setExistingFriends(res?.data?.data);
         } catch (e) {
             console.log(e);
@@ -96,7 +104,7 @@ function SideBar({ setMessages, setChat }: SideBarProps) {
 
     return (
         <div className="w-4/12 border-r">
-            <div className="p-2">
+            <div className="p-2 relative">
                 <input
                     autoComplete="off"
                     type="text"
@@ -104,22 +112,26 @@ function SideBar({ setMessages, setChat }: SideBarProps) {
                     placeholder="Search..."
                     className="border p-2 w-full rounded-md"
                     {...register("search")}
-                    onFocus={() => setOpen(true)}
-                    onBlur={() => setTimeout(() => setOpen(false), 1000)}
+                    onFocus={() => {
+                        setOpen(true);
+                        setSearch({ loading: true, user: [] });
+                    }}
                 />
-                <SearchModal user ={searchedUsers}/>
+                {open && <SearchModal user={search} setOpen={setOpen} />}
             </div>
             {existingFriends.length ? (
-                existingFriends.map((chat: any, index: number) => {
-                    return (
-                        <Chats
-                            name={chat.participants[0].userName}
-                            time={chat.createdAt}
-                            key={index}
-                            onClick={() => handleChatClick(chat)}
-                        />
-                    );
-                })
+                <div className="">
+                    {existingFriends.map((chat: any, index: number) => {
+                        return (
+                            <Chats
+                                name={chat.participants[0].userName}
+                                time={chat.createdAt}
+                                key={index}
+                                onClick={() => handleChatClick(chat)}
+                            />
+                        );
+                    })}
+                </div>
             ) : (
                 <p>Nothing</p>
             )}

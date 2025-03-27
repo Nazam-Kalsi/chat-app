@@ -8,11 +8,12 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { userSchema } from "@/schema/user.schema"
 import { useUser } from "@/context/session"
+import { toast } from "sonner"
 
 export default function SignIn() {
 
   const navigate = useNavigate();
-  const {user,setUser} = useUser();
+  const {setUser,setLoading} = useUser();
   const {register, handleSubmit, formState:{errors}} = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
     defaultValues: {
@@ -24,7 +25,7 @@ export default function SignIn() {
   const submit = async(data:z.infer<typeof userSchema>)=>{
 
 try {
-      const res = await fetch(`http://localhost:3000/api/user/sign-in`,{
+      const res = await fetch(`${import.meta.env.VITE_URL}/api/user/sign-in`,{
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,12 +33,20 @@ try {
         credentials: 'include',
         body: JSON.stringify(data),
       });
+      console.log(res)
+      if(!res || !res.ok){
+        const errorData = await res.json();
+        console.log(errorData)
+        throw new Error(errorData.message);
+      }
+      console.log(res);
       const d = await res.json();
-      console.log(d);
       setUser(d.data);
+      setLoading(false);
       navigate('/');
-} catch (error) {
-  console.log(error);
+} catch (error:any) {
+  console.log(error.message);
+  toast.error(error.message);
 }
   }
 
