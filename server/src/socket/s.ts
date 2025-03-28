@@ -33,11 +33,11 @@ export const socketEvents=(io:Server)=>{
             }        
         }); 
 
-        socket.on('typing',(e)=>{
-            console.log(e);
-            // if(connectedUsers.hasOwnProperty(data.to)){
-            //     connectedUsers[data.to].emit('typing',typing);
-            // } 
+        socket.on('typing',(content)=>{
+            console.log(content.data);
+            if(connectedUsers.hasOwnProperty(content.to)){
+                connectedUsers[content.to].emit('typing')
+            } 
         })
 
         // socket.on("send-message",(res:MessageResponse)=>{

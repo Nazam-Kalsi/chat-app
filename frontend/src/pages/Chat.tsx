@@ -20,6 +20,7 @@ function Chat() {
     const [page, setPage] = useState<number>(2);
     const limit = 10;
     const [loadMore, setLoadMore] = useState<boolean>(true);
+    const [typing, setTyping] = useState<boolean>(false);
     const [scroll, setScroll] = useState<boolean>(true);
     // const [userSocketId, setUserSocketId] = useState<string>("");
     const navigate = useNavigate();
@@ -140,8 +141,25 @@ function Chat() {
     }
 
     const keyPressed = async(e:any)=>{
-        socket.emit('typing',e.nativeEvent.data);
+        socket.emit('typing',{to:
+            user._id === chat.participants[1]._id
+                ? chat.participants[0]._id
+                : chat.participants[1]._id,
+                data:e.nativeEvent.data}
+            );
     }
+
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+socket.on('typing', () => {
+    setTyping(true);
+    if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = setTimeout(() => {
+        setTyping(false);
+    }, 1500);
+});
 
     return(
         <div className="flex">
@@ -160,7 +178,7 @@ function Chat() {
             </div>
                 </div>}
                 <div
-                    className=" h-[100vh] flex flex-col overflow-y-auto justify-start items-center"
+                    className="relative h-[100vh] flex flex-col overflow-y-auto justify-start items-center pb-6"
                     ref={messagesContainerRef}
                 >
                     {(currentMessages.length>0 && loadMore) && <Button variant='ghost' onClick={loadMoreChats}>Load more</Button>}
@@ -180,6 +198,7 @@ function Chat() {
                             No message yet!
                         </div>
                     )}
+                    {typing && <div className="px-4 self-start flex animate-bounce">Typing...</div>}
                 </div>
                 <form className="flex relative px-2">
                     <input
