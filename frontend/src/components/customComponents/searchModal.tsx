@@ -1,13 +1,16 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { ArrowBigDownDash, Loader2, UserPlus2Icon, XCircle } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
     user: any;
-    setOpen:(v:boolean)=>void
+    setOpen:(v:boolean)=>void;
+    setFriends:any;
+
 };
 
-function SearchModal({ user, setOpen }: Props) {
+function SearchModal({ user, setOpen, setFriends }: Props) {
 
 const addFriend = async (user: any) => {
     try {
@@ -17,9 +20,13 @@ const addFriend = async (user: any) => {
             {withCredentials: true}
         );
         console.log(res);
+        setFriends((prev:any)=>[...prev,res.data.data]);
+    } catch (error:any) {
+        const axiosError = error as AxiosError<any>;
+        toast.info(axiosError?.response?.data.message)
+    }
+    finally{
         setOpen(false);
-    } catch (error) {
-        console.log(error);
     }
 };
     return (
@@ -30,9 +37,9 @@ const addFriend = async (user: any) => {
             </div>
             {user.loading ? <Loader2 className="animate-spin self-center"/>:
             <div>
-            {user.user.map((u: any) => {
+            {user.user.map((u: any,index:number) => {
                 return (
-                    <button onClick={() => addFriend(u)} className="w-full p-2 hover:bg-white/10 rounded-md">
+                    <button key={index} onClick={() => addFriend(u)} className="w-full p-2 hover:bg-white/10 rounded-md">
                          <p className=" flex w-full items-start justify-between">
                          {u.userName}
                          <UserPlus2Icon strokeWidth={0.9}/>

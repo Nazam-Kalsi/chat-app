@@ -19,10 +19,10 @@ export const createChat = handler(async ({ req, res, next }: fxnCall) => {
         isGroup: false,
         $and: [
           {
-            participants: { $elemMatch: { $eq: req.user._id } },
+            participants: { $in: [req.user._id] },
           },
           {
-            participants: { $elemMatch: { $eq: friendId } },
+            participants: { $in: [reciever._id] },
           },
         ],
       },
@@ -46,10 +46,14 @@ export const createChat = handler(async ({ req, res, next }: fxnCall) => {
     },
   ]);
 
+  console.log("ExistingChat : ",ExistingChat);
+
   if (ExistingChat.length) {
-    return res
-      .status(200)
-      .json(ApiRes(200, "chat fetched successfully", ExistingChat));
+    // return res
+    //   .status(200)
+    //   .json(ApiRes(200, "Chat already exist.", ExistingChat));
+        return next(new ApiErr(400, "Chat already exist"));
+    
   }
 
   const newChat = await Chat.create({

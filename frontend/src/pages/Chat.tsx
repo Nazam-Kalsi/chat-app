@@ -1,7 +1,6 @@
-import { useRef, useState, RefObject, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useUser } from "@/context/session";
 import { useNavigate } from "react-router";
-import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { chatSchema } from "@/schema/chat.schema";
@@ -10,16 +9,18 @@ import { Button } from "@/components/ui/button";
 import { SendHorizonal } from "lucide-react";
 import MessageContainer from "@/components/customComponents/messageContainer";
 import SideBar from "@/components/customComponents/sideBar";
-import axios, { Axios, AxiosResponse } from "axios";
+import axios from "axios";
 import { socket } from "../socket";
 import { toast } from "sonner";
+import { getRandomGradient } from "@/constants";
 function Chat() {
     const messagesContainerRef = useRef<HTMLDivElement | null>(null);
     const [currentMessages, setCurrentMessages] = useState<any>([]);
     const [chat, setChat] = useState<any>();
     const [page, setPage] = useState<number>(2);
-    const [limit, setLimit] = useState<number>(10);
+    const limit = 10;
     const [loadMore, setLoadMore] = useState<boolean>(true);
+    const [scroll, setScroll] = useState<boolean>(true);
     // const [userSocketId, setUserSocketId] = useState<string>("");
     const navigate = useNavigate();
     const { user, loading } = useUser() as any;
@@ -76,14 +77,17 @@ function Chat() {
     });
 
     useEffect(() => {
+        // scroll ? messagesContainerRef.current.scrollHeight : 
         if (messagesContainerRef.current) {
             messagesContainerRef.current.scrollTo({
-                top: messagesContainerRef.current.scrollHeight,
+                top: scroll ? messagesContainerRef.current.scrollHeight : 0,
                 behavior: "smooth",
             });
+            setTimeout(()=>{
+                setScroll(true);
+            },700)
         }
     }, [currentMessages]);
-
     const submit = async (data: z.infer<typeof chatSchema>) => {
         console.log(data, user);
         setCurrentMessages([
@@ -123,22 +127,43 @@ function Chat() {
 
     const loadMoreChats = async()=>{
         console.log('clicked')
-        try {
-            // setPage((prev:number)=>prev+1);
-        } catch (error) {
-            
-        }
+            setPage((prev:number)=>prev+1);
+            try{
+                const res = await axios.post(`${import.meta.env.VITE_URL}/api/message/get-messages?page=${page}&limit=${limit}`,
+                    { chatId: chat._id },
+                    { withCredentials: true });
+
+                if(res.data.data.messages.length<10)setLoadMore(false)
+                    setScroll(false);
+                setCurrentMessages((prev:any)=>[...res.data.data.messages,...prev]);
+            }catch(e){console.log(e)}
     }
 
-    return (
-        <div className="flex px-2">
-            <SideBar setMessages={setCurrentMessages} setChat={setChat} setPage={setPage}/>
-            <div className="flex flex-col gap-2 w-full p-2 rounded-md h-[35rem]">
+    const keyPressed = async(e:any)=>{
+        socket.emit('typing',e.nativeEvent.data);
+    }
+
+    return(
+        <div className="flex">
+            <SideBar setMessages={setCurrentMessages} setChat={setChat} setLoadMore={setLoadMore}/>
+           {!chat?<div className="flex justify-center items-center w-full h-screen ">Search a friends name and start chating!</div>: <div className="flex flex-col gap-2 w-full py-2 rounded-md h-screen">
+                { chat && <div className="border-b flex gap-2 items-start pb-2 px-2">
+
+                    <div className={`rounded-full h-9 w-9 ${getRandomGradient()}`}>
+                                </div>
+                                <div>
+            <p className="text-start font-semibold leading-5">{(user?.userName===chat.participants[0]?.userName) ? (chat.participants[1].userName) : (chat.participants[0]?.userName)}</p>
+            <p className="text-gray-500 text-sm">
+                date
+                {/* {d.toLocaleDateString()} &nbsp;{d.toLocaleTimeString()} */}
+            </p>
+            </div>
+                </div>}
                 <div
-                    className=" h-[100vh] flex flex-col overflow-y-auto"
+                    className=" h-[100vh] flex flex-col overflow-y-auto justify-start items-center"
                     ref={messagesContainerRef}
                 >
-                    {currentMessages.length > 0 && <Button variant='ghost' onClick={loadMoreChats}>Load more</Button>}
+                    {(currentMessages.length>0 && loadMore) && <Button variant='ghost' onClick={loadMoreChats}>Load more</Button>}
                     {currentMessages.length ? (
                         currentMessages?.map(
                             (message: string, index: number) => {
@@ -156,11 +181,12 @@ function Chat() {
                         </div>
                     )}
                 </div>
-                <form className="flex relative">
+                <form className="flex relative px-2">
                     <input
                         className=" w-full outline-1 border-gray-300 p-2 rounded-md"
                         placeholder="Type here..."
                         {...register("message")}
+                        onChange={(e)=>keyPressed(e)}
                     />
                     <Button
                         variant="ghost"
@@ -170,7 +196,7 @@ function Chat() {
                         <SendHorizonal size={64} />
                     </Button>
                 </form>
-            </div>
+            </div>}
         </div>
     );
 }

@@ -33,6 +33,13 @@ export const socketEvents=(io:Server)=>{
             }        
         }); 
 
+        socket.on('typing',(e)=>{
+            console.log(e);
+            // if(connectedUsers.hasOwnProperty(data.to)){
+            //     connectedUsers[data.to].emit('typing',typing);
+            // } 
+        })
+
         // socket.on("send-message",(res:MessageResponse)=>{
         //     console.log(res)
         //     socket.broadcast.emit('message',res);

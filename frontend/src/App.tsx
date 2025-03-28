@@ -34,7 +34,7 @@ function App() {
         <>
             <Toaster richColors />
             <ThemeToggler />
-            <h1 className="">{data}</h1>
+            {/* <h1 className="">{data}</h1> */}
             <Outlet />
         </>
     );

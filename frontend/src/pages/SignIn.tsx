@@ -51,7 +51,7 @@ try {
   }
 
   return (
-    <div className={cn("flex flex-col gap-6 w-10/12 sm:w-8/12 lg:w-4/12 mx-auto")}>
+    <div className={cn("flex flex-col gap-6 w-10/12 sm:w-8/12 lg:w-4/12  mx-auto h-screen justify-center")}>
       {/* <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2"> */}
         <div className="dark:bg-black/50 rounded-lg p-0 overflow-hidden border">        

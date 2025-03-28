@@ -7,6 +7,12 @@ import { useForm } from "react-hook-form";
 import SearchModal from "./searchModal";
 import { io } from "socket.io-client";
 import { socket } from "@/socket";
+import { useUser } from "@/context/session";
+import { Loader2 } from "lucide-react";
+import { getRandomGradient } from "@/constants";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router"
+
 type ChatsProps = {
     name: string;
     time: string;
@@ -15,29 +21,35 @@ type ChatsProps = {
 type SideBarProps = {
     setMessages: any;
     setChat: any;
-    setPage:any;
+    setLoadMore:any;
 };
 
 function Chats({ name, time, onClick }: ChatsProps) {
     const d = new Date(time);
     return (
-        <button className="border-b p-2 w-full" onClick={onClick}>
-            <p className="font-semibold mb-2">{name}</p>
-            <p className="text-gray-500 text-sm">
-                {d.toLocaleDateString()} &nbsp;&nbsp;{d.toLocaleTimeString()}
+        <button className="flex gap-4 items-center border-b p-2 w-full" onClick={onClick}>
+            <div className={`rounded-full h-9 w-9 ${getRandomGradient()}`}>
+            </div>
+            <div>
+            <p className="text-start font-semibold">{name}</p>
+            <p className="text-gray-500 text-[9px]">
+                {d.toLocaleDateString()} &nbsp;{d.toLocaleTimeString()}
             </p>
+            </div>
         </button>
     );
 }
 
-function SideBar({ setMessages, setChat, setPage }: SideBarProps) {
+function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
     const [existingFriends, setExistingFriends] = useState<any[]>([]);
     const [search, setSearch] = useState<{ loading: boolean; user: any }>({
         loading: true,
         user: [],
     });
+    const navigate = useNavigate();
     const [open, setOpen] = useState<boolean>(false);
     const { register, watch } = useForm();
+    const {user,loading} = useUser() as any;
     const [debouncedValue, setValue] = useDebounceValue<string>("", 800);
     const watchedValueOfSearch = watch("search");
     setValue(watchedValueOfSearch);
@@ -61,7 +73,6 @@ function SideBar({ setMessages, setChat, setPage }: SideBarProps) {
 
     const handleChatClick = async (chat: any) => {
         console.log(chat);
-        setPage(1);
         try {
             const res = await axios.post(
                 `${import.meta.env.VITE_URL}/api/message/get-messages?page=1&limit=10`,
@@ -79,6 +90,8 @@ function SideBar({ setMessages, setChat, setPage }: SideBarProps) {
             //     }
             // );
             console.log("res. : ",res.data.data.messages);
+            if(res.data.data.messages.length<10)setLoadMore(false);
+            else setLoadMore(true);
             setMessages((prev: any) => [...res.data.data.messages]);
             setChat(chat);
         } catch (error) {
@@ -102,14 +115,43 @@ function SideBar({ setMessages, setChat, setPage }: SideBarProps) {
         getAllFriends();
     }, []);
 
-    return (
-        <div className="w-4/12 border-r">
-            <div className="p-2 relative">
+    const logout = async() => {
+        try{
+            
+            const res = await axios.get(`${import.meta.env.VITE_URL}/api/user/sign-out`,
+                {withCredentials:true}
+            )
+            navigate('/sign-in')
+            console.log("logout : ",res);
+        }catch(e){console.log(e)}
+    }
+
+    return loading?<Loader2 className="animate-spin"/> : (
+        <div className="w-4/12 border-r h-screen overflow-auto">
+            <h2 className="text-2xl font-semibold p-3 border-b">Chats</h2>
+            {user &&
+            <div>
+                <p className="p-2">My Account</p>
+            <div className="flex items-center justify-between border-b p-2 w-full">
+                <div className="flex gap-2">
+             <div className={`rounded-full h-9 w-9 ${getRandomGradient()}`}/>
+            <div>
+            <p className="text-start font-semibold">{user.userName}</p>
+            <p className="text-gray-500 text-[9px]">
+                Joined - {new Date(user.createdAt).toLocaleDateString()}
+            </p>
+            </div>
+                </div>
+            <Button onClick={logout} variant='destructive'>Logout</Button>
+            </div>
+            </div>
+            }
+            <div className=" p-2 relative">
                 <input
                     autoComplete="off"
                     type="text"
                     id="search"
-                    placeholder="Search..."
+                    placeholder="Search your friend..."
                     className="border p-2 w-full rounded-md"
                     {...register("search")}
                     onFocus={() => {
@@ -117,14 +159,14 @@ function SideBar({ setMessages, setChat, setPage }: SideBarProps) {
                         setSearch({ loading: true, user: [] });
                     }}
                 />
-                {open && <SearchModal user={search} setOpen={setOpen} />}
+                {open && <SearchModal user={search} setOpen={setOpen} setFriends={setExistingFriends}/>}
             </div>
             {existingFriends.length ? (
                 <div className="">
                     {existingFriends.map((chat: any, index: number) => {
                         return (
                             <Chats
-                                name={chat.participants[0].userName}
+                                name={(user?.userName===chat.participants[0]?.userName) ? (chat.participants[1].userName) : (chat.participants[0]?.userName)}
                                 time={chat.createdAt}
                                 key={index}
                                 onClick={() => handleChatClick(chat)}

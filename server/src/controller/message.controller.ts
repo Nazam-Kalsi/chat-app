@@ -72,15 +72,20 @@ export const getMessages = handler(async({req,res,next}:fxnCall)=>{
         },
         {
             $sort:{
+                createdAt:-1
+            }
+        },
+        {
+            $skip: (Number(page) - 1) * Number(limit)
+          },          
+          {
+            $limit: Number(limit)
+          },
+          {
+            $sort:{
                 createdAt:1
             }
-        },{
-            $skip: (page - 1) * limit
-          },
-          
-          {
-            $limit: limit
-          }
+        }
         ,{
             $group:{
                 _id:'$chat',
