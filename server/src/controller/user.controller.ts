@@ -138,22 +138,28 @@ export const userLogout = handler(async ({ req, res, next }: fxnCall) => {
 
 export const getUser = handler(async ({ req, res, next }: fxnCall) => {
   const { search } = req.query;
+  const loggedInUserName = req.user.userName;
   if (!search) {
     throw new ApiErr(400, "search query is required.")
   }
 
-  const user = await User.find({
+  let user = await User.find({
     userName: {
       $regex: search,
-      $options: "i" //Case senstive
-    }
+      $options: "i", //Case senstive
+    },
   })
 
   if (!user) {
     throw new ApiErr(404, "user not found.")
   }
+
+  const n = user.filter((u)=>{
+        return u.userName!==loggedInUserName
+  })
+
   return res.status(200)
-    .json(ApiRes(200, "User Found", user));
+    .json(ApiRes(200, "User Found", n));
 })
 
 export const getFriends = handler(async ({ req, res, next }: fxnCall) => {
@@ -163,7 +169,7 @@ export const getFriends = handler(async ({ req, res, next }: fxnCall) => {
     {
       $match: {
         $and: [
-          { isGroup: false },
+          // { isGroup: false },
           {
             participants: {
               $in: [new mongoose.Types.ObjectId(req.user._id)]

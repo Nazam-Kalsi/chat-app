@@ -97,13 +97,22 @@ export const createOrGetGroupChat = handler(async ({ req, res, next }: fxnCall) 
     if (!users.length)
       throw new ApiErr(400, "group members are required for group creation");
 
+    const userIds = users.map((id)=>{
+      return new mongoose.Types.ObjectId(id);
+    })
+
+    userIds.push(new mongoose.Types.ObjectId(req.user._id));
+
+    console.log(userIds);
+    
+
     const existingGroup = await Chat.find({
       name: name,
       isGroup: true,
-      participants: { $all: [users] },
-    });
+      participants: { $all: userIds },
+    }).populate('participants');
 
-    if (existingGroup) {
+    if (existingGroup.length) {
       return res
         .status(200)
         .json(ApiRes(200, "group found", existingGroup));
@@ -111,7 +120,7 @@ export const createOrGetGroupChat = handler(async ({ req, res, next }: fxnCall) 
 
     let group = await Chat.create({
       isGroup: true,
-      participants: users,
+      participants: userIds,
       name: name,
       admin: req.user._id,
     });
@@ -132,8 +141,7 @@ export const createOrGetGroupChat = handler(async ({ req, res, next }: fxnCall) 
             {
               $project: {
                 _id: 1,
-                username: 1,
-                email: 1,
+                userName: 1,
               },
             },
           ],

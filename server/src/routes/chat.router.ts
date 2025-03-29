@@ -7,7 +7,7 @@ const router = Router();
 
 router.route(`/create-chat/:friendId`).post(verifyToken,createChat);
 router.route(`/get-chat`).get(verifyToken,getChats);
-router.route(`/create-group-chat`).get(verifyToken,createOrGetGroupChat);
+router.route(`/create-group-chat`).post(verifyToken,createOrGetGroupChat);
 router.route(`/change-group-chat-name`).post(verifyToken,changeGroupName);
 router.route(`/add-to-group-chat`).post(verifyToken,addToGroupChat);
 router.route(`/remove-from-group-chat`).post(verifyToken,removeFromGroup);

@@ -68,6 +68,18 @@ function Chat() {
         console.log(data);
     });
 
+    socket.on('group-chat',(data)=>{
+        console.log(data);
+        setCurrentMessages([
+            ...currentMessages,
+            {
+                message: data.message,
+                sender: data.by,
+                createdAt: new Date(),
+            },
+        ]);
+    })
+
     const { register, handleSubmit, setValue } = useForm<
         z.infer<typeof chatSchema>
     >({
@@ -96,25 +108,35 @@ function Chat() {
             { message: data.message, sender: user?._id, createdAt: new Date() },
         ]);
         try {
-            socket.emit("private-chat", {
-                to:
-                    user._id === chat.participants[1]._id
-                        ? chat.participants[0]._id
-                        : chat.participants[1]._id,
-                message: data.message,
-            });
-            const res: any = await axios.post(
-                `${import.meta.env.VITE_URL}/api/message/send-message/${
-                    chat._id
-                }`,
-                { messageContent: data.message },
-                { withCredentials: true }
-            );
+            if(!chat.isGroup){
 
-            if (!res && !res.ok) {
-                const e = await res.json();
-                throw new Error(e.message);
+                socket.emit("private-chat", {
+                    to:
+                    user._id === chat.participants[1]._id
+                    ? chat.participants[0]._id
+                    : chat.participants[1]._id,
+                    message: data.message,
+                });
+            }else{
+                socket.emit("group-chat", {
+                    to:chat.name,
+                    message: data.message,
+                    by:user.userName
+                });
+
             }
+            // const res: any = await axios.post(
+            //     `${import.meta.env.VITE_URL}/api/message/send-message/${
+            //         chat._id
+            //     }`,
+            //     { messageContent: data.message },
+            //     { withCredentials: true }
+            // );
+
+            // if (!res && !res.ok) {
+            //     const e = await res.json();
+            //     throw new Error(e.message);
+            // }
         } catch (error) {
             if (error instanceof Error) {
                 toast.error(error.message);
@@ -170,11 +192,14 @@ socket.on('typing', () => {
                     <div className={`rounded-full h-9 w-9 ${getRandomGradient()}`}>
                                 </div>
                                 <div>
-            <p className="text-start font-semibold leading-5">{(user?.userName===chat.participants[0]?.userName) ? (chat.participants[1].userName) : (chat.participants[0]?.userName)}</p>
-            <p className="text-gray-500 text-sm">
-                date
+            <p className="text-start font-semibold leading-5">{chat.isGroup?chat.name:(user?.userName===chat.participants[0]?.userName) ? (chat.participants[1].userName) : (chat.participants[0]?.userName)}</p>
+            <div className="flex justify-between items-center">
+
+                {chat.isGroup && <p className="text-gray-500 text-sm">group chat</p>}
+            {/* <p className="text-gray-500 text-sm">date */}
                 {/* {d.toLocaleDateString()} &nbsp;{d.toLocaleTimeString()} */}
-            </p>
+                {/* </p> */}
+            </div>
             </div>
                 </div>}
                 <div
@@ -189,6 +214,7 @@ socket.on('typing', () => {
                                     <MessageContainer
                                         message={message}
                                         key={index}
+                                        isGroup={chat.isGroup}
                                     />
                                 );
                             }

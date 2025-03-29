@@ -7,6 +7,7 @@ import { User } from "../models/user.model.ts";
 import { Chat } from "../models/chat.model.ts";
 import mongoose from "mongoose";
 import { room } from "../utils/joinRoom.ts";
+import { pipeline } from "stream";
 
 export const sendMessageInChat = handler(async ({ req, res, next }: fxnCall) => {
     const { chatID } = req.params;

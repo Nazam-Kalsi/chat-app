@@ -12,7 +12,8 @@ interface RoomResponse {
 
 
 
-var connectedUsers:any = {};
+let connectedUsers:any = {};
+let joinedGroups:any = {};
 export const socketEvents=(io:Server)=>{    
     
     io.on("connection", async(socket:Socket) => { 
@@ -22,6 +23,12 @@ export const socketEvents=(io:Server)=>{
         socket.on('logged-in',async(data)=>{
             socket.userName = data.id;
             connectedUsers[data.id] = socket;
+        })
+
+        socket.on('join-group',(groups)=>{
+            groups.map((groupName:string)=>{
+                socket.join(groupName);
+            })
         })
 
         socket.on('private-chat',function(data:MessageResponse){
@@ -39,6 +46,13 @@ export const socketEvents=(io:Server)=>{
                 connectedUsers[content.to].emit('typing')
             } 
         })
+
+        socket.on('group-chat',(d)=>{
+            console.log(d);
+            socket.to(d.to).emit('group-chat',d);            
+        })
+
+        
 
         // socket.on("send-message",(res:MessageResponse)=>{
         //     console.log(res)

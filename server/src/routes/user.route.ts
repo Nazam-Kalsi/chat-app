@@ -9,7 +9,7 @@ router.route('/sign-in').post(userLogin);
 //secure routes
 router.route('/sign-out').get(verifyToken,userLogout);
 router.route('/get-friends').get(verifyToken,getFriends);
-router.route('/get-user').get(getUser);
+router.route('/get-user').get(verifyToken,getUser);
 router.route('/get-current-user').get(verifyToken,getCurrentUser);
 router.route('/update-user').patch(verifyToken,updateUser);
 
