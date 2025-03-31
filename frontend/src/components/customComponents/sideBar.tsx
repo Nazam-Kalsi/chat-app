@@ -146,7 +146,7 @@ function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
             {user &&
             <div>
                 <p className="p-2">My Account</p>
-            <div className="flex items-center justify-between border-b p-2 w-full">
+            <div className="flex items-center justify-between flex-wrap border-b p-2 w-full">
                 <div className="flex gap-2">
              <div className={`rounded-full h-9 w-9 ${getRandomGradient()}`}/>
             <div>

@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { userLogin, userRegistration, userLogout, getFriends, getUser, getCurrentUser, updateUser } from "../controller/user.controller.ts";
+import { userLogin, userRegistration, userLogout, getFriends, getUser, getCurrentUser, updateUser, checkUniqueUserName } from "../controller/user.controller.ts";
 import { verifyToken } from "../middleware/auth.middleware.ts";
 const router = Router();
 
+router.route(`/check-userName`).post(checkUniqueUserName);
 router.route(`/sign-up`).post(userRegistration);
 router.route('/sign-in').post(userLogin);
 

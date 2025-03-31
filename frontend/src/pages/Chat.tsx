@@ -105,7 +105,7 @@ function Chat() {
         console.log(data, user);
         setCurrentMessages([
             ...currentMessages,
-            { message: data.message, sender: user?._id, createdAt: new Date() },
+            { message: data.message, sender: {_id:user?._id,userName:user.usrName}, createdAt: new Date() },
         ]);
         try {
             if(!chat.isGroup){

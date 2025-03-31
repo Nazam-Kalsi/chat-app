@@ -86,7 +86,33 @@ export const getMessages = handler(async({req,res,next}:fxnCall)=>{
             $sort:{
                 createdAt:1
             }
+        },{
+            $lookup:{
+                from: 'users',
+                foreignField: '_id',
+                localField: 'sender',
+                as: 'sender',
+                pipeline:[
+                    {
+                        $project:{
+                            _id:1,
+                            userName:1
+                        }
+                    }
+                ]
+            }
+        },{
+            $unwind: {
+                path: '$sender',
+                preserveNullAndEmptyArrays: true
+            }
         }
+        //*  or
+        // ,{
+        //     $addFields: {
+        //         sender: { $arrayElemAt: ['$sender', 0] }  // Retrieve the first item from the sender array
+        //     }
+        // }
         ,{
             $group:{
                 _id:'$chat',

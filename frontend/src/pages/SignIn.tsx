@@ -1,6 +1,5 @@
 import { cn } from "../lib/utils"
 import { Button } from "../components/ui/button"
-import { Card, CardContent } from "../components/ui/card"
 import { Label } from "../components/ui/label"
 import { Link, useNavigate } from "react-router"
 import { useForm } from "react-hook-form"
@@ -9,10 +8,12 @@ import { z } from "zod"
 import { userSchema } from "@/schema/user.schema"
 import { useUser } from "@/context/session"
 import { toast } from "sonner"
-
+import { useState } from "react"
+import Loading from "@/components/customComponents/loading"
 export default function SignIn() {
 
   const navigate = useNavigate();
+  const [l, setL] = useState<boolean>(false);
   const {setUser,setLoading} = useUser();
   const {register, handleSubmit, formState:{errors}} = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
@@ -25,6 +26,7 @@ export default function SignIn() {
   const submit = async(data:z.infer<typeof userSchema>)=>{
 
 try {
+  setL(true);
       const res = await fetch(`${import.meta.env.VITE_URL}/api/user/sign-in`,{
         method: "POST",
         headers: {
@@ -47,10 +49,14 @@ try {
 } catch (error:any) {
   console.log(error.message);
   toast.error(error.message);
+}finally{
+  setL(false);
 }
   }
 
   return (
+    <>
+      {l && <Loading/>}
     <div className={cn("flex flex-col gap-6 w-10/12 sm:w-8/12 lg:w-4/12  mx-auto h-screen justify-center")}>
       {/* <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2"> */}
@@ -105,5 +111,6 @@ try {
         and <a href="#">Privacy Policy</a>.
       </div>
     </div>
+    </>
   )
 }

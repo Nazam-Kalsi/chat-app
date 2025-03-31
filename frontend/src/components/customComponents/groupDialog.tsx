@@ -23,9 +23,11 @@ type Props = {
 function GroupDialog({ children, friends }: Props) {
     const { user } = useUser() as any;
     const [groupParticipants,setGroupParticipants] = useState<any>([]);
-    const {register, handleSubmit ,formState:{errors}, setValue} = useForm();
+    const {register, handleSubmit ,formState:{errors}} = useForm();
+    
+    console.log("u in modal : ",friends)
 
-    const friendsData = friends.map((f: any) => {
+    const friendsData = friends.filter((u:any)=>!u.isGroup).map((f: any) => {
         const friendsData =
             f.participants[0].userName === user.userName
                 ? f.participants[1]
@@ -63,7 +65,7 @@ function GroupDialog({ children, friends }: Props) {
     return (
         <Dialog>
             <DialogTrigger asChild className="absolute bottom-0 right-2">{children}</DialogTrigger>
-            <DialogContent className="">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create a group</DialogTitle>
                     <DialogDescription className="text-wrap">

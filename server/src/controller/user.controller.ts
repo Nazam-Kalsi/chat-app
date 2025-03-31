@@ -224,3 +224,12 @@ export const updateUser = handler(async ({ req, res, next }: fxnCall) => {
   return res.status(200)
     .json(ApiRes(200, "User updated successfullly", updatedUser));
 })
+
+export const checkUniqueUserName = handler(async({ req, res, next }: fxnCall)=>{
+    const {userName} = req.body;
+    const existingUserWithSameName = await User.findOne({userName});
+    
+    if(existingUserWithSameName)
+      return next(new ApiErr(400,'User with same name already exist.'))
+    return res.status(200).json(ApiRes(200,"User name avaliable."))
+})
