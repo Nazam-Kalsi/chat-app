@@ -6,8 +6,9 @@ import { fxnCall } from "../types.ts";
 import { Request, Response, NextFunction } from "express";
 import { Chat } from "../models/chat.model.ts";
 import mongoose from "mongoose";
-import { pipeline } from "stream";
+import { OAuth2Client } from "google-auth-library";
 
+const client = new OAuth2Client(process.env.GOOGLE_AUTH_CLIENT_ID);
 
 export const generateToken = async (id: any) => {
   try {
@@ -28,6 +29,8 @@ export const generateToken = async (id: any) => {
 
 export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
   const { userName, email, password } = req.body;
+  const files = req.file;
+  console.log(files);
 
   if (
     [userName, email, password].some((field) => {
@@ -53,6 +56,7 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
     userName,
     email,
     password,
+    avatar:`http://localhost:3000/${files?.destination}/${files?.filename}`
   });
   const user = await User.findById(newUser._id)?.select(
     "-password -refreshToken"
@@ -232,4 +236,62 @@ export const checkUniqueUserName = handler(async({ req, res, next }: fxnCall)=>{
     if(existingUserWithSameName)
       return next(new ApiErr(400,'User with same name already exist.'))
     return res.status(200).json(ApiRes(200,"User name avaliable."))
-})
+  })
+
+
+  export const googleSignUp = handler(async({ req, res, next }: fxnCall)=>{
+    const d=req.body;
+    const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: {
+        Authorization: `Bearer ${d.access_token}`,
+      },
+    });
+
+    const profileData = await profileRes.json();
+
+    if (!profileRes.ok) {
+      return next(new ApiErr(400,profileData))
+    }
+    console.log("profileData : ",profileData)
+
+    const {name, email, sub, picture} = profileData;
+    let user = await User.findOne({
+      googleUserId:sub
+    })
+    
+    const options = {
+      httpOnly: true,
+      Secure: false,
+    };
+    
+    if(user){      
+      const { accessToken, refreshToken } = await generateToken((user as mongoose.Document<unknown> )._id);
+      return res.status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(ApiRes(200,"User account alreadt exists",user))
+    }
+    
+    user = await User.create({
+      userName:name,
+      email,
+      avatar:picture,
+      googleUserId:sub,
+      password:sub
+    });
+    
+    if(!user)
+      return next(new ApiErr(400,"Error while registering user"));
+    const { accessToken, refreshToken } = await generateToken(user._id);
+    
+    const newUser = await User.findById(user._id);
+    if(!newUser)
+      return next(new ApiErr(400,"Error while fetching user details"));
+    
+
+    console.log("new user : ",newUser)
+    return res.status(200)
+              .cookie("accessToken", accessToken, options)
+              .cookie("refreshToken", refreshToken, options)
+              .json(ApiRes(200,"Account created successfully",newUser))
+  })

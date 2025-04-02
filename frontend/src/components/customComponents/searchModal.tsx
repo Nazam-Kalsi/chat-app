@@ -1,6 +1,5 @@
 import axios, { AxiosError } from "axios";
 import { ArrowBigDownDash, Loader2, UserPlus2Icon, XCircle } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 
 type Props = {
@@ -19,7 +18,7 @@ const addFriend = async (user: any) => {
             {},
             {withCredentials: true}
         );
-        console.log(res);
+        console.log("res : ",res);
         setFriends((prev:any)=>[...prev,res.data.data]);
     } catch (error:any) {
         const axiosError = error as AxiosError<any>;
@@ -30,7 +29,7 @@ const addFriend = async (user: any) => {
     }
 };
     return (
-        <div className="flex flex-col p-2 absolute border isolate bg-white/50 dark:bg-black/50 shadow-lg ring-1 ring-black/5 w-full top-16  rounded-lg backdrop-blur-xs">
+        <div className="flex flex-col p-2 absolute z-50 border isolate shadow-lg ring-1 ring-black/5 w-full top-16 rounded-lg backdrop-blur-sm">
             <div className="flex justify-between items-center p-2">
             <h5>Add friends</h5>
             <XCircle className="self-end" strokeWidth={0.9} onClick={()=>setOpen(false)}/>

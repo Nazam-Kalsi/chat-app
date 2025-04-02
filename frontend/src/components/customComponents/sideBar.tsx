@@ -7,30 +7,33 @@ import { useForm } from "react-hook-form";
 import SearchModal from "./searchModal";
 import { useUser } from "@/context/session";
 import { Loader2 } from "lucide-react";
-import { getRandomGradient } from "@/constants";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router"
-import GroupDialog from "./groupDialog";
+import CreateGroup from "./createGroup";
 import { socket } from "../../socket";
 
 type ChatsProps = {
     name: string;
     time: string;
     onClick: () => void;
-    isGroup?:boolean
+    isGroup?:boolean;
+    avatar:string
+
 };
 type SideBarProps = {
     setMessages: any;
     setChat: any;
     setLoadMore:any;
+    setFriends:any
 };
 
-function Chats({ name, time, onClick,isGroup }: ChatsProps) {
+function Chats({ name, time, onClick,isGroup, avatar }: ChatsProps) {
     const d = new Date(time);
     return (
         <button className="flex gap-4 items-center border-b p-2 w-full" onClick={onClick}>
-            <div className={`rounded-full h-9 w-9 ${getRandomGradient()}`}>
-            </div>
+            
+            <img src={avatar || 'q.jpg'} alt='img' className={`rounded-full size-8`} 
+               onError={(e) => e.currentTarget.src = 'q.jpg'} />            
             <div>
                 <div className="flex justify-between items-center">
             <p className="text-start font-semibold">{name.slice(0,5)}{name.length>5?'..':''}</p>
@@ -44,7 +47,7 @@ function Chats({ name, time, onClick,isGroup }: ChatsProps) {
     );
 }
 
-function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
+function SideBar({ setMessages, setChat, setLoadMore, setFriends }: SideBarProps) {
     const [existingChats, setExistingChats] = useState<any[]>([]);
     const [search, setSearch] = useState<{ loading: boolean; user: any }>({
         loading: true,
@@ -68,17 +71,14 @@ function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
                         }/api/user/get-user?search=${debouncedValue}`,
                         {withCredentials:true}
                     );
-                    console.log(res);
                     setSearch({ loading: false, user: res.data.data });
                     setOpen(true);
                 } catch (error) {}
             })();
         }
-        console.log(debouncedValue);
     }, [debouncedValue]);
 
     const handleChatClick = async (chat: any) => {
-        console.log(chat);
         try {
             const res = await axios.post(
                 `${import.meta.env.VITE_URL}/api/message/get-messages?page=1&limit=10`,
@@ -95,7 +95,6 @@ function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
             //         u2: chat.participants[1].userName,
             //     }
             // );
-            console.log("res. : ",res.data.data.messages);
             if(res.data.data.messages.length<10)setLoadMore(false);
             else setLoadMore(true);
             setMessages((prev: any) => [...res.data.data.messages]);
@@ -113,6 +112,10 @@ function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
             );
             // console.log(res);
             setExistingChats(res?.data?.data);
+            setFriends(()=>{
+                const f = (res?.data?.data).filter((f:any)=>!f.isGroup);
+                return f;
+            })
         } catch (e) {
             console.log(e);
         }
@@ -123,7 +126,6 @@ function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
 
     useEffect(()=>{
         const groups = existingChats.filter(chat => chat.isGroup).map(chat => chat.name)
-        console.log(groups);
 
         socket.emit('join-group',groups)
         
@@ -148,7 +150,9 @@ function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
                 <p className="p-2">My Account</p>
             <div className="flex items-center justify-between flex-wrap border-b p-2 w-full">
                 <div className="flex gap-2">
-             <div className={`rounded-full h-9 w-9 ${getRandomGradient()}`}/>
+             <img src={user.avatar || 'q.jpg'} alt='img' className={`rounded-full h-9 w-9`} 
+               onError={(e) => e.currentTarget.src = 'q.jpg'} 
+/>
             <div>
             <p className="text-start font-semibold">{user.userName}</p>
             <p className="text-gray-500 text-[9px]">
@@ -173,7 +177,7 @@ function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
                         setSearch({ loading: true, user: [] });
                     }}
                 />
-                {open && <SearchModal user={search} setOpen={setOpen} setFriends={existingChats}/>}
+                {open && <SearchModal user={search} setOpen={setOpen} setFriends={setExistingChats}/>}
             </div>
             {existingChats.length ? (
                 <div className="relative min-h-8/12 overflow-auto">
@@ -185,10 +189,11 @@ function SideBar({ setMessages, setChat, setLoadMore }: SideBarProps) {
                                 key={index}
                                 onClick={() => handleChatClick(chat)}
                                 isGroup={chat.isGroup}
+                                avatar={chat.avatar}
                             />
                         );
                     })}
-                    <GroupDialog friends={existingChats}><button className="px-4 py-2 rounded-md border">Create Group</button></GroupDialog>
+                    <CreateGroup header="Create a Group" description="Mark the friends to add in a group" friends={existingChats}><button className="px-4 py-2 rounded-md border">Create Group</button></CreateGroup>
                 </div>
             ) : (
                 <p>Nothing</p>

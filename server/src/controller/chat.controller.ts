@@ -280,3 +280,27 @@ export const removeFromGroup = handler(async ({ req, res, next }: fxnCall) => {
     .status(200)
     .json(ApiRes(200, "menber remove successfully", group));
 });
+
+export const updateGroupDetails = handler(async ({ req, res, next }: fxnCall) => {
+  const data = req.body;
+  const user = req.user;
+  console.log(data);
+  const group = await Chat.findById({_id:data.id}); 
+  if(!group){
+    return next(new ApiErr(400,"Not found"));
+  }
+  if(user._id!==group.admin){
+    return next(new ApiErr(400,"You are not the admin"))
+  }
+  
+  const groupChat =await Chat.findByIdAndUpdate({
+    _id:data.id
+  },{
+      name:data.name,
+      participants:[...data.users, user._id],
+
+  },{new:true}
+);
+
+return res.status(200).json(ApiRes(200,"Group info updated successfully",groupChat));
+});

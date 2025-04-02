@@ -41,8 +41,14 @@ app.use(express.json());
 
 app.use(cookieParser());
 
+app.use(express.static("public"));
+
 import userRouter from './routes/user.route.ts'
 app.use('/api/user',userRouter);
+
+app.get('/', (req, res) => {
+  res.send('Vro! Vro! Vro! 👍')
+})
 
 import messageRouter from './routes/message.route.ts'
 app.use('/api/message',messageRouter);

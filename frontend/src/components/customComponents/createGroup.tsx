@@ -18,15 +18,15 @@ import { useForm } from "react-hook-form";
 type Props = {
     children: ReactNode;
     friends: any;
+    header:string;
+    description:string;
 };
 
-function GroupDialog({ children, friends }: Props) {
+function CreateGroup({ children, friends, header, description }: Props) {
     const { user } = useUser() as any;
     const [groupParticipants,setGroupParticipants] = useState<any>([]);
     const {register, handleSubmit ,formState:{errors}} = useForm();
     
-    console.log("u in modal : ",friends)
-
     const friendsData = friends.filter((u:any)=>!u.isGroup).map((f: any) => {
         const friendsData =
             f.participants[0].userName === user.userName
@@ -47,14 +47,10 @@ function GroupDialog({ children, friends }: Props) {
     }
     
     const submit = async(data:any)=>{
-        console.log(data);
-        console.log(groupParticipants);
         try {
             const res = await axios.post(`${import.meta.env.VITE_URL}/api/chat/create-group-chat`,
                 {name:data.name,users:groupParticipants},
                 {withCredentials:true});
-
-            console.log(res);
             setGroupParticipants([]);
         } catch (error) {
             const ae = error as AxiosError<any>;
@@ -67,9 +63,9 @@ function GroupDialog({ children, friends }: Props) {
             <DialogTrigger asChild className="absolute bottom-0 right-2">{children}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create a group</DialogTitle>
+                    <DialogTitle>{header}</DialogTitle>
                     <DialogDescription className="text-wrap">
-                        Mark the friends to add in a group.
+                        {description}
                     </DialogDescription>
                 </DialogHeader>
                     <form onSubmit={handleSubmit(submit)}>
@@ -104,4 +100,4 @@ function GroupDialog({ children, friends }: Props) {
     );
 }
 
-export default GroupDialog;
+export default CreateGroup;
