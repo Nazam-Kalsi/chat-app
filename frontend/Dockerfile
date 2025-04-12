@@ -2,16 +2,15 @@ FROM node:20-alpine AS base
 
 RUN mkdir -p /frontend/dev
 
-WORKDIR /server/dev
+WORKDIR /frontend/dev
 
-COPY package.* .
+RUN npm install yarn
+
+COPY package.* *.lock .
 
 RUN yarn install
 
-RUN yarn
-
-
-FROM base As dev
+FROM base AS dev
 COPY . .
 
 CMD ["yarn", "dev"]

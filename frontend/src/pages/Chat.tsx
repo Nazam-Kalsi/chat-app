@@ -28,9 +28,10 @@ function Chat() {
     const { user, loading } = useUser() as any;
 
     useEffect(() => {
-        if (!loading && user === null) {
+        if (!loading && (user === null || user === undefined)) {
             navigate("/sign-in");
         }
+        console.log("user to test : ",user);
     }, [user, loading]);
 
     socket.emit("logged-in", { id: user?._id, userName: user?.userName });

@@ -20,8 +20,8 @@ function App() {
                 );
                 if(!res)throw new Error;
                 // console.log("current user : ", res);
-                setUser(res.data.data);
-                setData(res.data.data.userName+" - "+res.data.data._id);
+                setUser(res.data?.data);
+                setData(res.data?.data?.userName+" - "+res?.data?.data?._id);
                 setLoading(false);
             } catch (error) {
                 setLoading(false);

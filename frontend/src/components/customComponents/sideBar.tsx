@@ -113,7 +113,7 @@ function SideBar({ setMessages, setChat, setLoadMore, setFriends }: SideBarProps
             // console.log(res);
             setExistingChats(res?.data?.data);
             setFriends(()=>{
-                const f = (res?.data?.data).filter((f:any)=>!f.isGroup);
+                const f = (res?.data?.data)?.filter((f:any)=>!f.isGroup);
                 return f;
             })
         } catch (e) {
@@ -125,7 +125,7 @@ function SideBar({ setMessages, setChat, setLoadMore, setFriends }: SideBarProps
     }, []);
 
     useEffect(()=>{
-        const groups = existingChats.filter(chat => chat.isGroup).map(chat => chat.name)
+        const groups = existingChats?.filter(chat => chat.isGroup)?.map(chat => chat.name)
 
         socket.emit('join-group',groups)
         
@@ -179,7 +179,7 @@ function SideBar({ setMessages, setChat, setLoadMore, setFriends }: SideBarProps
                 />
                 {open && <SearchModal user={search} setOpen={setOpen} setFriends={setExistingChats}/>}
             </div>
-            {existingChats.length ? (
+            {existingChats && existingChats?.length ? (
                 <div className="relative min-h-8/12 overflow-auto">
                     {existingChats.map((chat: any, index: number) => {
                         return (

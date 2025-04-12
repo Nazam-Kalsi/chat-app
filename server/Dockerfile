@@ -1,14 +1,17 @@
-FROM node:23-alpine3.20 AS base
+FROM node:20-alpine3.20 AS base
+
 RUN mkdir -p /server/dev
 
 WORKDIR /server/dev
 
-COPY package.* .
+RUN npm install yarn
 
-RUN yarn
+COPY package.json .
+
+RUN yarn install
 
 
-From base As dev
-copy . .
+FROM base AS dev
+COPY . .
 
-CMD ['yarn', 'dev']
+CMD ["yarn", "dev"]
