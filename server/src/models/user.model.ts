@@ -7,6 +7,7 @@ interface IUser extends Document {
   email: string;
   password: string;
   avatar: string;
+  description: string;
   googleUserId: string;
   refreshToken: string;
   checkPassword(password: string): Promise<boolean>;
@@ -26,6 +27,10 @@ const userSchema = new mongoose.Schema<IUser>(
       unique:true,
       required: [true, "email is required !"],
       trim: true,
+    },
+    description:{
+      type:String,
+      default:"I use this app"
     },
     password: {
       type: String,

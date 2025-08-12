@@ -5,7 +5,6 @@ import { toast } from "sonner";
 
 // shadcn / shadcn-ui components
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Loading from "@/components/customComponents/loading";
@@ -13,7 +12,7 @@ import { useUser } from "@/context/session";
 
 type UserProfile = {
   _id?: string;
-  name: string;
+  userName: string;
   email: string;
   description?: string;
   avatar?: string;
@@ -23,19 +22,22 @@ export default function Profile() {
     const user = useUser();
   const [saving, setSaving] = useState(false);
 
-  const { register, handleSubmit, reset, watch, formState,setValue } = useForm<UserProfile>({
-    defaultValues: { name: "", email: "", description: "", avatar: "" },
+  const { register, handleSubmit, reset, watch, formState,setValue } = useForm({
+    defaultValues: { userName: "qwer", email: "", description: "", avatar: "" },
   });
-useEffect(()=>{
-    setValue(name,user?.user?.name)
-
-},[user])
+  useEffect(()=>{
+    console.log(user.user)
+    setValue("userName", user?.user?.userName );
+    setValue("email", user?.user?.email);
+    setValue("description", user?.user?.description );
+  },[user])
 
   // save handler
   const onSubmit = async (values: UserProfile) => {
+    console.log(values)
     try {
       setSaving(true);
-      const res = await axios.put(`${import.meta.env.VITE_URL || ""}/api/user/profile`, values, { withCredentials: true });
+      const res = await axios.patch(`${import.meta.env.VITE_URL || ""}/api/user/update-user`, values, { withCredentials: true });
       reset(res.data?.data ?? values);
       toast.success("Profile saved");
     } catch (e) {
@@ -45,7 +47,7 @@ useEffect(()=>{
       setSaving(false);
     }
   };
-  console.log(user);
+  // console.log("user:",user);
   return (
     <div className="min-h-screen flex justify-center items-center ">
     <Card className="min-w-1/2">
@@ -58,22 +60,22 @@ useEffect(()=>{
           <form id="profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <Label htmlFor="id">ID</Label>
-              <Input id="id" value={user?.user?._id ?? ""} readOnly/>
+              <input className="w-full border rounded-md p-2"  id="id" value={user?.user?._id ?? ""} readOnly/>
             </div>
 
             {/* Name */}
             <div>
               <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="Full name" {...register("name", { required: "Name is required" })} />
-              {formState.errors.name && (
-                <p className="text-sm text-red-600">{formState.errors.name.message}</p>
+              <input className="w-full border rounded-md p-2" id="name" placeholder="Full name" {...register("userName", { required: "Name is required" })} />
+              {formState.errors.userName && (
+                <p className="text-sm text-red-600">{formState.errors.userName.message}</p>
               )}
             </div>
 
             {/* Email */}
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" placeholder="you@domain.com" {...register("email", {
+              <input className="w-full border rounded-md p-2" id="email" placeholder="you@domain.com" {...register("email", {
                 required: "Email is required",
                 pattern: { value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/, message: "Invalid email" },
               })} />
@@ -91,11 +93,11 @@ useEffect(()=>{
             {/* Avatar URL */}
             <div>
               <Label htmlFor="avatar">Avatar (URL)</Label>
-              <Input id="avatar" placeholder="https://...jpg" {...register("avatar")} />
+              <input type="file" accept="image/png, image/jpeg" className="w-full border rounded-md p-2" id="avatar" placeholder="https://...jpg" {...register("avatar")} />
               {watch("avatar") && (
                 <div className="mt-2">
                   <img
-                    src={watch("avatar")}
+                    src={watch("avatar").length>0 ?URL.createObjectURL(watch("avatar")[0]):"null" }
                     alt="avatar preview"
                     className="w-24 h-24 rounded-full object-cover border"
                     onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/q.jpg"; }}

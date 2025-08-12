@@ -213,15 +213,11 @@ export const getCurrentUser = handler(async ({ req, res, next }: fxnCall) => {
 
 export const updateUser = handler(async ({ req, res, next }: fxnCall) => {
   const user = req.user;
-  const { socketId } = req.body;
-  console.log(socketId);
+  const data = req.body;
 
   const updatedUser = await User.findByIdAndUpdate({
     _id: user._id
-  },
-    {
-      socketId
-    },
+  },data,
     { new: true }
   );
 
