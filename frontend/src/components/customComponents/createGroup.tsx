@@ -60,7 +60,7 @@ function CreateGroup({ children, friends, header, description }: Props) {
 
     return (
         <Dialog>
-            <DialogTrigger asChild className="absolute bottom-0 right-2">{children}</DialogTrigger>
+            <DialogTrigger asChild className="">{children}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{header}</DialogTitle>

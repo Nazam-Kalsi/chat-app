@@ -10,7 +10,7 @@ import { useUser } from "@/context/session"
 import { toast } from "sonner"
 import { useState } from "react"
 import Loading from "@/components/customComponents/loading"
-import { useGoogleLogin } from "@react-oauth/google"
+// import { useGoogleLogin } from "@react-oauth/google"
 export default function SignIn() {
 
   const navigate = useNavigate();
@@ -55,28 +55,28 @@ try {
 }
   }
 
-  const googleSignIn = useGoogleLogin({
-    onSuccess: async ( d:any ) => {
-        try {
-            const res = await fetch(
-                `${import.meta.env.VITE_URL}/api/user/google-sign-up`,{
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    credentials:'include',
-                    body: JSON.stringify(d),
-                  });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message);
-            console.log(data);
-            setUser(data.data);
-            navigate('/')
-        } catch (error) {
-            console.log("error while google login : ", error);
-        }
-    },
-});
+//   const googleSignIn = useGoogleLogin({
+//     onSuccess: async ( d:any ) => {
+//         try {
+//             const res = await fetch(
+//                 `${import.meta.env.VITE_URL}/api/user/google-sign-up`,{
+//                     method: "POST",
+//                     headers: {
+//                         "Content-Type": "application/json",
+//                     },
+//                     credentials:'include',
+//                     body: JSON.stringify(d),
+//                   });
+//             const data = await res.json();
+//             if (!res.ok) throw new Error(data.message);
+//             console.log(data);
+//             setUser(data.data);
+//             navigate('/')
+//         } catch (error) {
+//             console.log("error while google login : ", error);
+//         }
+//     },
+// });
 
   return (
     <>
@@ -121,7 +121,7 @@ try {
               <Button variant='default' type="submit" className="w-full">
                 Login
               </Button>
-              <Button variant='outline' onClick={(e)=>{e.preventDefault(); googleSignIn()}}>Log-in with Google</Button>
+              {/* <Button variant='outline' onClick={(e)=>{e.preventDefault(); googleSignIn()}}>Log-in with Google</Button> */}
               <div className="text-center text-sm">
                 Don&apos;t have an account?{" "}
                 <Link className="hover:underline" to="/sign-up"> Sign Up </Link>

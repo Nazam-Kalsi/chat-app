@@ -12,8 +12,8 @@ interface RoomResponse {
 
 
 
-let connectedUsers:any = {};
-let joinedGroups:any = {};
+let connectedUsers:any = [];
+let joinedGroups:any = [];
 export const socketEvents=(io:Server)=>{    
     
     io.on("connection", async(socket:Socket) => { 
@@ -74,7 +74,7 @@ export const socketEvents=(io:Server)=>{
         // });
 
         socket.on("disconnect",(a)=>{
-            connectedUsers=connectedUsers.filter((user:any) => user.socketId !== socket.id)
+            connectedUsers=connectedUsers?.filter((user:any) => user.socketId !== socket.id)
             console.log("user disconnect.",a)
         })
     });

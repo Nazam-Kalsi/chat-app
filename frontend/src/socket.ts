@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 
-const url="http://localhost:3000/";
+const url= "http://localhost:8000/";
+import.meta.env.VITE_URL
 export const socket= io(url);
 
 socket.on('connection', () => {

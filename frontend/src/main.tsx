@@ -8,6 +8,7 @@ import SignIn from './pages/SignIn.tsx';
 import Chat from './pages/Chat.tsx';
 import { UserContextProvider } from './context/session.tsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import Profile from './pages/profile.tsx';
  
 const CustomRoutes = ()=> {
   return(
@@ -16,6 +17,7 @@ const CustomRoutes = ()=> {
       <Route index element={<Chat/>}/>
       <Route path='/sign-in' element={<SignIn/>}/>
       <Route path='/sign-up' element={<SignUp/>}/>
+      <Route path='/profile/:id' element={<Profile/>}/>
       </Route>
     </Routes>
   )
@@ -23,12 +25,12 @@ const CustomRoutes = ()=> {
 
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
-  <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'not-set'}>
+  // <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || 'not-set'}>
   <UserContextProvider>
   <BrowserRouter>
     <CustomRoutes/>
   </BrowserRouter>
   </UserContextProvider>
-  </GoogleOAuthProvider>
+  // </GoogleOAuthProvider>
   // </StrictMode>,
 )

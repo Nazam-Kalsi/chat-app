@@ -29,12 +29,16 @@ const addFriend = async (user: any) => {
     }
 };
     return (
-        <div className="flex flex-col p-2 absolute z-50 border isolate shadow-lg ring-1 ring-black/5 w-full top-16 rounded-lg backdrop-blur-sm">
+        <div className="flex flex-col p-2 absolute z-50 border isolate shadow-lg ring-1 ring-black/5 w-full top-16 rounded-2xl backdrop-blur-sm">
             <div className="flex justify-between items-center p-2">
             <h5>Add friends</h5>
             <XCircle className="self-end" strokeWidth={0.9} onClick={()=>setOpen(false)}/>
             </div>
-            {user.loading ? <Loader2 className="animate-spin self-center"/>:
+            {user.loading ? 
+            <p className="text-center text-xs animate-pulse">Search via name
+            <span className="animate-pulse">...</span>
+            </p>
+            :
             <div>
             {user.user.map((u: any,index:number) => {
                 return (

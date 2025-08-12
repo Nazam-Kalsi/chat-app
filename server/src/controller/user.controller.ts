@@ -8,7 +8,7 @@ import { Chat } from "../models/chat.model.ts";
 import mongoose from "mongoose";
 import { OAuth2Client } from "google-auth-library";
 
-const client = new OAuth2Client(process.env.GOOGLE_AUTH_CLIENT_ID);
+// const client = new OAuth2Client(process.env.GOOGLE_AUTH_CLIENT_ID);
 
 export const generateToken = async (id: any) => {
   try {

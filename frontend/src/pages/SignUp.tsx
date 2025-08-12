@@ -120,7 +120,7 @@ export default function Signup() {
                 const errorData = await res.json();
                 throw new Error(errorData.message);
             }
-            // navigate("/sign-in");
+            navigate("/sign-in");
         } catch (error: any) {
             toast.error(error.message);
         } finally {
@@ -148,28 +148,28 @@ export default function Signup() {
         //   .catch((err) => console.error('Error during Google login:', err));
     };
 
-    const loginWithGoogle = useGoogleLogin({
-        onSuccess: async ( d:any ) => {
-            try {
-                const res = await fetch(
-                    `${import.meta.env.VITE_URL}/api/user/google-sign-up`,{
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        credentials:'include',
-                        body: JSON.stringify(d),
-                      });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message);
-                console.log(data);
-                setUser(data.data);
-                navigate('/')
-            } catch (error) {
-                console.log("error while google login : ", error);
-            }
-        },
-    });
+    // const loginWithGoogle = useGoogleLogin({
+    //     onSuccess: async ( d:any ) => {
+    //         try {
+    //             const res = await fetch(
+    //                 `${import.meta.env.VITE_URL}/api/user/google-sign-up`,{
+    //                     method: "POST",
+    //                     headers: {
+    //                         "Content-Type": "application/json",
+    //                     },
+    //                     credentials:'include',
+    //                     body: JSON.stringify(d),
+    //                   });
+    //             const data = await res.json();
+    //             if (!res.ok) throw new Error(data.message);
+    //             console.log(data);
+    //             setUser(data.data);
+    //             navigate('/')
+    //         } catch (error) {
+    //             console.log("error while google login : ", error);
+    //         }
+    //     },
+    // });
 
     return (
         <div className="grid min-h-svh lg:grid-cols-2">
@@ -292,7 +292,7 @@ export default function Signup() {
                                     log in
                                 </Link>
                             </div>
-                            <Button
+                            {/* <Button
                                 onClick={(e) => {
                                     e.preventDefault();
                                     loginWithGoogle()}}
@@ -300,7 +300,7 @@ export default function Signup() {
                             >
                                 {" "}
                                 Sign-in with Google
-                            </Button>
+                            </Button> */}
                             {/* <GoogleLogin
                                 onSuccess={handleGoogleResponse}
                                 onError={() => console.error("Login Failed")}
