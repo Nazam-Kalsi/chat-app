@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyToken } from "../middleware/auth.middleware.ts";
-import { addToGroupChat, changeGroupName, createChat, createOrGetGroupChat, getChats, removeFromGroup, updateGroupDetails } from "../controller/chat.controller.ts";
+import { addToGroupChat, changeGroupName, createChat, createOrGetGroupChat, deleteChat,getChats, removeFromGroup, updateGroupDetails } from "../controller/chat.controller.ts";
 
 const router = Router();
 
@@ -12,4 +12,5 @@ router.route(`/change-group-chat-name`).post(verifyToken,changeGroupName);
 router.route(`/add-to-group-chat`).post(verifyToken,addToGroupChat);
 router.route(`/remove-from-group-chat`).post(verifyToken,removeFromGroup);
 router.route(`/update-group-info`).post(verifyToken,updateGroupDetails);
+router.route(`/remove-friend/:chatId`).delete(verifyToken,deleteChat);
 export default router;

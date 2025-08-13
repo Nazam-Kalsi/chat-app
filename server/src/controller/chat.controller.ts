@@ -66,8 +66,11 @@ export const createChat = handler(async ({ req, res, next }: fxnCall) => {
     "participants",
     "-password"
   );
-
   if (!chat) return new ApiErr(400, "error while creating chat");
+
+  chat.participants = chat.participants.filter(
+  (p: any) => p._id.toString() !== req.user.id.toString()
+);
 
   return res
     .status(200)
@@ -76,10 +79,49 @@ export const createChat = handler(async ({ req, res, next }: fxnCall) => {
 
 export const getChats = handler(async ({ req, res, next }: fxnCall) => {
   const id = req.user._id;
-  const chats = await Chat.find({
+  const chats = await Chat.aggregate([
+     {
+    $match: {
+      participants: {
+        $in: [new mongoose.Types.ObjectId(id)]
+      }
+    }
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "participants",
+      foreignField: "_id",
+      as: "participants",
+      // pipeline: [
+      //   {
+      //     $project: {
+      //       userName: 1,
+      //       _id: 1,
+      //       socketId: 1
+      //     }
+      //   }
+      // ]
+    }
+  },
+  {
+    $set: {
+      participants: {
+        $filter: {
+          input: "$participants",
+          as: "participant",
+          cond: {
+            $ne: ["$$participant._id", new mongoose.Types.ObjectId(req.user.id)]
+          }
+        }
+      }
+    }
+  }
+  ])
+    // const chats = await Chat.find({
     // participants: { $eleMatch: { $eq: id } },
-    participants: { $in: [id] }
-  }).populate("participants");
+    // participants: { $in: [id] }
+  // }).populate("participants");
 
   // if(!chats.length){
   //     throw new ApiErr(400,"no previous chats")
@@ -304,3 +346,12 @@ export const updateGroupDetails = handler(async ({ req, res, next }: fxnCall) =>
 
 return res.status(200).json(ApiRes(200,"Group info updated successfully",groupChat));
 });
+
+export const deleteChat = handler(async ({ req, res, next }: fxnCall) => {
+  
+   const chatId:string = req.params.chatId;
+      if(!chatId) return new ApiErr(400,"Chat id not provided");    
+    const deleting = await Chat.deleteOne(new mongoose.Types.ObjectId(chatId));
+    if(!deleting) return new ApiErr(400,"Not able to delete chat, please try again later.");
+    return res.status(200).json(ApiRes(200,"Chat deleted successfully"));
+})

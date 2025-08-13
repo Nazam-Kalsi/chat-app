@@ -14,22 +14,23 @@ type UserProfile = {
   _id?: string;
   userName: string;
   email: string;
-  description?: string;
-  avatar?: string;
+  description: string;
+  avatar?: any;
 };
 
 export default function Profile() {
     const user = useUser();
   const [saving, setSaving] = useState(false);
 
-  const { register, handleSubmit, reset, watch, formState,setValue } = useForm({
-    defaultValues: { userName: "qwer", email: "", description: "", avatar: "" },
+  const { register, handleSubmit, reset, watch, formState, setValue } = useForm({
+    defaultValues: { userName: "", email: "", description: "", avatar: undefined as FileList | undefined },
   });
   useEffect(()=>{
-    console.log(user.user)
-    setValue("userName", user?.user?.userName );
-    setValue("email", user?.user?.email);
-    setValue("description", user?.user?.description );
+    if(user.user){
+      setValue("userName", user.user.userName );
+      setValue("email", user?.user?.email);
+      setValue("description", user?.user?.description );
+    }
   },[user])
 
   // save handler
@@ -93,11 +94,17 @@ export default function Profile() {
             {/* Avatar URL */}
             <div>
               <Label htmlFor="avatar">Avatar (URL)</Label>
-              <input type="file" accept="image/png, image/jpeg" className="w-full border rounded-md p-2" id="avatar" placeholder="https://...jpg" {...register("avatar")} />
-              {watch("avatar") && (
+              <input
+                type="file"
+                accept="image/png, image/jpeg"
+                className="w-full border rounded-md p-2"
+                id="avatar"
+                {...register("avatar")}
+              />
+              {(watch("avatar") && (watch("avatar") as FileList).length > 0)&& (
                 <div className="mt-2">
                   <img
-                    src={watch("avatar").length>0 ?URL.createObjectURL(watch("avatar")[0]):"null" }
+                    src={URL.createObjectURL((watch("avatar") as FileList)[0] as File)}
                     alt="avatar preview"
                     className="w-24 h-24 rounded-full object-cover border"
                     onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/q.jpg"; }}

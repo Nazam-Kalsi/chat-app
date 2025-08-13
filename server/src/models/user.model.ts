@@ -10,6 +10,7 @@ interface IUser extends Document {
   description: string;
   googleUserId: string;
   refreshToken: string;
+  lastOnline:Date,
   checkPassword(password: string): Promise<boolean>;
   generateRefreshToken(): Promise<string>;
   generateAccessToken(): Promise<string>;
@@ -35,6 +36,10 @@ const userSchema = new mongoose.Schema<IUser>(
     password: {
       type: String,
       required: true,
+    },
+    lastOnline:{
+      type:Date,
+      default:null
     },
     avatar:{
       type:String,

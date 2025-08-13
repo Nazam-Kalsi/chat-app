@@ -144,3 +144,15 @@ export const getMessages = handler(async({req,res,next}:fxnCall)=>{
 
 
 })
+
+export const deleteAllMessagesFromChat = handler(async ({ req, res, next }: fxnCall) => {
+    const chatId:string = req.params.chatId;
+    
+    if(!chatId) return new ApiErr(400,"Chat id not provided");  
+    console.log("chatid:",chatId)  
+  const deleting = await Message.deleteMany({
+    chat:new mongoose.Types.ObjectId(chatId)  
+  })
+  if(!deleting) return new ApiErr(400,"Not able to delete chat, please try again later.");
+  return res.status(200).json(ApiRes(200,"All messages deleted successfully"));
+})

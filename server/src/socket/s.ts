@@ -1,4 +1,6 @@
 import {  Server, Socket } from "socket.io";
+import { User } from "../models/user.model.ts";
+import mongoose from 'mongoose';
 
 interface MessageResponse {
     to: string;
@@ -12,12 +14,11 @@ interface RoomResponse {
 
 
 
-let connectedUsers:any = [];
+let connectedUsers:any = {};
 let joinedGroups:any = [];
 export const socketEvents=(io:Server)=>{    
     
     io.on("connection", async(socket:Socket) => { 
-
         socket.emit("welcome", `${socket.id}`); 
 
         socket.on('logged-in',async(data)=>{
@@ -26,7 +27,7 @@ export const socketEvents=(io:Server)=>{
         })
 
         socket.on('join-group',(groups)=>{
-            groups.map((groupName:string)=>{
+            groups?.map((groupName:string)=>{
                 socket.join(groupName);
             })
         })
@@ -73,8 +74,18 @@ export const socketEvents=(io:Server)=>{
         //     socket.to(anotherSocketId).emit("private-message", socket.id, msg);
         // });
 
-        socket.on("disconnect",(a)=>{
-            connectedUsers=connectedUsers?.filter((user:any) => user.socketId !== socket.id)
+        socket.on("disconnect",async(a)=>{
+             const userId = socket.userName;
+            if (userId && connectedUsers[userId] && connectedUsers[userId].id === socket.id) delete connectedUsers[userId];
+            const x =await User.findByIdAndUpdate({   
+                _id:new mongoose.Types.ObjectId(userId)
+                },{
+                    $set:{
+                      lastOnline:new Date()
+                }},{
+                    new:true
+                }
+            )
             console.log("user disconnect.",a)
         })
     });
