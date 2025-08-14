@@ -8,14 +8,14 @@ import { z } from "zod"
 import { userSchema } from "@/schema/user.schema"
 import { useUser } from "@/context/session"
 import { toast } from "sonner"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Loading from "@/components/customComponents/loading"
 // import { useGoogleLogin } from "@react-oauth/google"
 export default function SignIn() {
 
   const navigate = useNavigate();
   const [l, setL] = useState<boolean>(false);
-  const {setUser,setLoading} = useUser();
+  const {setUser,setLoading,user,loading} = useUser();
   const {register, handleSubmit, formState:{errors}} = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
     defaultValues: {
@@ -23,6 +23,12 @@ export default function SignIn() {
       password: "test",
     },
   });
+
+  useEffect(()=>{
+    if(user){
+      navigate('/chat');
+    }
+  },[user,loading])
 
   const submit = async(data:z.infer<typeof userSchema>)=>{
 
@@ -46,7 +52,7 @@ try {
       const d = await res.json();
       setUser(d.data);
       setLoading(false);
-      navigate('/');
+      navigate('/chat');
 } catch (error:any) {
   console.log(error.message);
   toast.error(error.message);

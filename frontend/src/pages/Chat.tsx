@@ -20,7 +20,7 @@ function Chat() {
     const [currentMessages, setCurrentMessages] = useState<any>([]);
     const [friendInfoSidebarOpen, setFriendInfoSidebarOpen] =
         useState<boolean>(false);
-    const [friends, setFriends] = useState<any>();
+    const [friends, setFriends] = useState<any>([]);
     const [chat, setChat] = useState<any>();
     const [page, setPage] = useState<number>(2);
     const limit = 10;
@@ -35,7 +35,6 @@ function Chat() {
         if (!loading && (user === null || user === undefined)) {
             navigate("/sign-in");
         }
-        console.log("user to test : ", user);
     }, [user, loading]);
 
     socket.emit("logged-in", { id: user?._id, userName: user?.userName });
@@ -203,13 +202,31 @@ function Chat() {
         console.log(res);
         setChat(null);
         setFriends((prev:any)=>prev.filter((f:any)=>f._id!==chat._id));
-        setFriendInfoSidebarOpen(false);
-        
+        setFriendInfoSidebarOpen(false);        
     }
-console.log("in chat compoment:",chat)
+    const getAllFriends = async () => {
+        try {
+            const res = await axios.get(
+                `${import.meta.env.VITE_URL}/api/user/get-friends`,
+                { withCredentials: true }
+            );
+            // setExistingChats(res?.data?.data);
+            setFriends(() => {
+                const f = res?.data?.data?.filter((f: any) => !f.isGroup);
+                return f;
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    useEffect(() => {
+        getAllFriends();
+    }, []);    
     return (
         <div className="flex">
             <SideBar
+                friends = {friends}
                 setFriends={setFriends}
                 setMessages={setCurrentMessages}
                 setChat={setChat}
@@ -249,7 +266,7 @@ console.log("in chat compoment:",chat)
                                         <p
                                             className="hover:underline cursor-pointer text-start font-semibold leading-5"
                                             onClick={() =>
-                                                setFriendInfoSidebarOpen(true)
+                                                setFriendInfoSidebarOpen(prev=>!prev)
                                             }
                                         >
                                             {chat.participants[0]?.userName}

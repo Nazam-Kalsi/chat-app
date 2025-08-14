@@ -38,6 +38,7 @@ type SideBarProps = {
     setChat: any;
     setLoadMore: any;
     setFriends: any;
+    friends:any
 };
 
 function Chats({ name, time, onClick, isGroup, avatar,lastMessage }: ChatsProps) {
@@ -86,8 +87,8 @@ function SideBar({
     setChat,
     setLoadMore,
     setFriends,
+    friends
 }: SideBarProps) {
-    const [existingChats, setExistingChats] = useState<any[]>();
     const [search, setSearch] = useState<{ loading: boolean; user: any }>({
         loading: true,
         user: [],
@@ -96,7 +97,7 @@ function SideBar({
     const [open, setOpen] = useState<boolean>(false); // Search modal
 
     const { register, watch } = useForm();
-    const { user, loading } = useUser() as any;
+    const { user, loading, setUser} = useUser() as any;
     const [debouncedValue, setValue] = useDebounceValue<string>("", 800);
     const watchedValueOfSearch = watch("search");
     setValue(watchedValueOfSearch);
@@ -138,33 +139,13 @@ function SideBar({
         }
     };
     
-    const getAllFriends = async () => {
-        try {
-            const res = await axios.get(
-                `${import.meta.env.VITE_URL}/api/user/get-friends`,
-                { withCredentials: true }
-            );
-            setExistingChats(res?.data?.data);
-            setFriends(() => {
-                const f = res?.data?.data?.filter((f: any) => !f.isGroup);
-                return f;
-            });
-        } catch (e) {
-            console.log(e);
-        }
-    };
-
     useEffect(() => {
-        getAllFriends();
-    }, []);
-
-    useEffect(() => {
-        const groups = existingChats
-            ?.filter((chat) => chat.isGroup)
-            ?.map((chat) => chat.name);
+        const groups = friends
+            ?.filter((chat:any) => chat.isGroup)
+            ?.map((chat:any) => chat.name);
 
         socket.emit("join-group", groups);
-    }, [existingChats]);
+    }, [friends]);
 
     const logout = async () => {
         try {
@@ -172,8 +153,9 @@ function SideBar({
                 `${import.meta.env.VITE_URL}/api/user/sign-out`,
                 { withCredentials: true }
             );
-            navigate("/sign-in");
+            navigate("/");
             console.log("logout : ", res);
+            setUser(null);
         } catch (e) {
             console.log(e);
         }
@@ -204,7 +186,7 @@ function SideBar({
                             <CreateGroup
                                 header="Create a Group"
                                 description="Mark the friends to add in a group"
-                                friends={existingChats}
+                                friends={friends}
                             >
                                 <p className="flex">
                                     <UsersRound /> Create Group
@@ -216,6 +198,7 @@ function SideBar({
                         <DropdownMenuItem
                             onClick={logout}
                             className="space-x-4"
+                            variant="destructive"
                         >
                             <LogOut /> Logout
                         </DropdownMenuItem>
@@ -241,15 +224,15 @@ function SideBar({
                     <SearchModal
                         user={search}
                         setOpen={setOpen}
-                        setFriends={setExistingChats}
+                        setFriends={setFriends}
                     />
                 )}
             </div>
 
             {/* Chats list */}
-            {existingChats?.length ? (
+            {friends?.length ? (
                 <div className="relative min-h-8/12 px-2 overflow-auto">
-                    {existingChats.map((chat: any, index: number) => (
+                    {friends.map((chat: any, index: number) => (
                         <Chats
                         lastMessage={chat?.lastMessage?.message || ""}
                             name={

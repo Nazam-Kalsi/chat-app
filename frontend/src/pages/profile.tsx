@@ -20,6 +20,7 @@ type UserProfile = {
 
 export default function Profile() {
     const user = useUser();
+    console.log(user);
   const [saving, setSaving] = useState(false);
 
   const { register, handleSubmit, reset, watch, formState, setValue } = useForm({
@@ -35,10 +36,17 @@ export default function Profile() {
 
   // save handler
   const onSubmit = async (values: UserProfile) => {
-    console.log(values)
+    console.log(values);
+    // if (values.avatar) {
+      const formData = new FormData();
+      formData.append("avatar", values.avatar[0]);
+      formData.append("userName", values.userName);
+      formData.append("email", values.email);
+      formData.append("description", values.description);
+    // }
     try {
       setSaving(true);
-      const res = await axios.patch(`${import.meta.env.VITE_URL || ""}/api/user/update-user`, values, { withCredentials: true });
+      const res = await axios.patch(`${import.meta.env.VITE_URL || ""}/api/user/update-user`, FormData, { withCredentials: true });
       reset(res.data?.data ?? values);
       toast.success("Profile saved");
     } catch (e) {
@@ -59,6 +67,7 @@ export default function Profile() {
       <CardContent>
         
           <form id="profile-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <img src={user?.user?.avatar} alt="logo" />
             <div>
               <Label htmlFor="id">ID</Label>
               <input className="w-full border rounded-md p-2"  id="id" value={user?.user?._id ?? ""} readOnly/>
@@ -104,7 +113,7 @@ export default function Profile() {
               {(watch("avatar") && (watch("avatar") as FileList).length > 0)&& (
                 <div className="mt-2">
                   <img
-                    src={URL.createObjectURL((watch("avatar") as FileList)[0] as File)}
+                    src={URL.createObjectURL((watch("avatar") as FileList)[0] as File) || ""}
                     alt="avatar preview"
                     className="w-24 h-24 rounded-full object-cover border"
                     onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/q.jpg"; }}

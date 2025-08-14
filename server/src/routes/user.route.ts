@@ -14,6 +14,6 @@ router.route('/sign-out').get(verifyToken,userLogout);
 router.route('/get-friends').get(verifyToken,getFriends);
 router.route('/get-user').get(verifyToken,getUser);
 router.route('/get-current-user').get(verifyToken,getCurrentUser);
-router.route('/update-user').patch(verifyToken,updateUser);
+router.route('/update-user').patch(upload.single("avatar"),verifyToken,updateUser);
 
 export default router;

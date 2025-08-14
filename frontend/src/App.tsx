@@ -7,6 +7,7 @@ import ThemeToggler from "./components/customComponents/themeToggler";
 import { useUser } from "./context/session";
 import axios from "axios";
 import { Toaster } from "@/components/ui/sonner"
+import { AnimatedThemeToggler } from "./components/ui/animated-theme-toggler";
 
 function App() {
     const [data, setData] = useState("Not connected");
@@ -33,7 +34,7 @@ function App() {
     return (
         <>
             <Toaster richColors />
-            <ThemeToggler />
+            <AnimatedThemeToggler className="fixed top-8 right-12 z-12" />
             {/* <h1 className="">{data}</h1> */}
             <Outlet />
         </>

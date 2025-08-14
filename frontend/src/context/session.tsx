@@ -5,6 +5,7 @@ type User = {
     userName: string;
     email: string;
     description: string;
+    avatar:string
 
 };
 

@@ -8,8 +8,9 @@ import { Chat } from '../models/chat.model.ts';
 import mongoose from 'mongoose';
 import { OAuth2Client } from 'google-auth-library';
 import { pipeline } from 'stream';
-
-// const client = new OAuth2Client(process.env.GOOGLE_AUTH_CLIENT_ID);
+import { v2 as cloudinary } from 'cloudinary'
+import fs from 'fs/promises';
+import {cloudinaryConfig } from "../app.ts"
 
 export const generateToken = async (id: any) => {
   try {
@@ -29,6 +30,7 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
   const { userName, email, password } = req.body;
   const files = req.file;
   console.log(files);
+  
 
   if (
     [userName, email, password].some((field) => {
@@ -49,12 +51,15 @@ export const userRegistration = handler(async ({ req, res, next }: fxnCall) => {
   if (existingUser) {
     return next(new ApiErr(400, 'User already exist.'));
   }
+  
+  const cloudinaryImage = await cloudinary.uploader.upload(files?.path as string,{folder:'chat-app'});
+  await fs.unlink((files as any).path);
 
   const newUser = await User.create({
     userName,
     email,
     password,
-    avatar: `http://localhost:3000/${files?.destination}/${files?.filename}`
+    avatar: cloudinaryImage.secure_url
   });
   const user = await User.findById(newUser._id)?.select('-password -refreshToken');
 
@@ -267,6 +272,9 @@ export const getCurrentUser = handler(async ({ req, res, next }: fxnCall) => {
 export const updateUser = handler(async ({ req, res, next }: fxnCall) => {
   const user = req.user;
   const data = req.body;
+  const files = req.file;
+  console.log(files);
+  
 
   const updatedUser = await User.findByIdAndUpdate(
     {

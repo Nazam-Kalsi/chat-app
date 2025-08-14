@@ -3,6 +3,15 @@ import { createServer,Server as httpServer } from "http";
 import { Server as socketServer, Socket } from "socket.io";
 import cors from 'cors';
 import cookieParser from "cookie-parser";
+import cloudinary from "cloudinary";
+import dotenv from 'dotenv';
+dotenv.config();
+
+export const cloudinaryConfig =  cloudinary.v2.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 const app = express();
 
 export const server : httpServer=createServer(app);

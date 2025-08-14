@@ -9,12 +9,14 @@ import Chat from './pages/Chat.tsx';
 import { UserContextProvider } from './context/session.tsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Profile from './pages/profile.tsx';
+import ChatHomepage from './pages/home.tsx';
  
 const CustomRoutes = ()=> {
   return(
     <Routes>
       <Route path='/' element={<App/>}>
-      <Route index element={<Chat/>}/>
+      <Route index element={<ChatHomepage/>}/>
+      <Route path='/chat' element={<Chat/>}/>
       <Route path='/sign-in' element={<SignIn/>}/>
       <Route path='/sign-up' element={<SignUp/>}/>
       <Route path='/profile/:id' element={<Profile/>}/>
